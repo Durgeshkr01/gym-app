@@ -62,7 +62,14 @@
     </style>
   <meta name="theme-color" content="#FF6B35">
 <meta name="description" content="Gym Management App - SG Fitness Evolution">
-<link rel="shortcut icon" href="/favicon.ico" /></head>
+<link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/logo-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SG Fitness">
+    <meta name="mobile-web-app-capable" content="yes">
+  </head>
 
   <body>
     <!-- 
@@ -115,5 +122,15 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/bundles/web-7c0e1de2ca22c58703cf2e7f743a1205.js" defer></script></body>
+  <script src="/bundles/web-1f125453dbb04cbfc082af0cdb7bc330.js" defer></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.log('SW failed:', err));
+        });
+      }
+    </script>
+  </body>
 </html>

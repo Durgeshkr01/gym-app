@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Platform } from 'react-native';
 import { Card, Text, Searchbar, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { formatCurrency } from '../../utils/helpers';
+import InstallBanner from '../../components/web/InstallBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -58,6 +59,9 @@ export default function HomeScreen({ navigation }) {
           </View>
         </Card.Content>
       </Card>
+
+      {/* PWA Install Banner (web only) */}
+      <InstallBanner />
 
       {/* Search */}
       <Searchbar placeholder="Search members by name, phone, roll no..." value={searchQuery}
