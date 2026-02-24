@@ -1,0 +1,22 @@
+.expo/
+node_modules/
+.expo-shared/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+
+# Backups
+firebase_backup.json
+DataContext_AsyncStorage_backup.js
+DataContext_Firebase.js

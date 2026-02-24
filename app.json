@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "SG Fitness Evolution",
+    "slug": "sg-fitness-evolution",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B35"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sgfitness.evolution"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.sgfitness.evolution",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "SG Fitness Evolution",
+      "shortName": "SG Fitness",
+      "description": "Gym Management App - SG Fitness Evolution",
+      "themeColor": "#FF6B35",
+      "backgroundColor": "#121212",
+      "bundler": "metro"
+    },
+    "plugins": []
+  }
+}
