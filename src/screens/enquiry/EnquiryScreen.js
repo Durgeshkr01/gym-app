@@ -107,7 +107,7 @@ export default function EnquiryScreen({ navigation }) {
         {[{ id: 'all', l: `All (${enquiries.length})` }, { id: 'new', l: 'New' }, { id: 'followup', l: 'Follow Up' },
           { id: 'converted', l: 'Converted' }, { id: 'lost', l: 'Lost' }].map(f => (
           <Chip key={f.id} selected={selectedFilter === f.id} onPress={() => setSelectedFilter(f.id)}
-            style={[styles.fChip, selectedFilter === f.id && { backgroundColor: c.primary + '20' }]}
+            style={[styles.fChip, selectedFilter === f.id && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
             textStyle={{ fontSize: 11, color: selectedFilter === f.id ? c.primary : c.muted }}>{f.l}</Chip>
         ))}
       </View>

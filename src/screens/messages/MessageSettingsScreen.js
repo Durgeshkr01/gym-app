@@ -133,7 +133,7 @@ export default function MessageSettingsScreen({ navigation }) {
     <View style={[styles.container, { backgroundColor: c.background }]}>
       <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: 30 }}>
         {/* Info tip */}
-        <View style={[styles.tipBox, { backgroundColor: c.primary + '10' }]}>
+        <View style={[styles.tipBox, { backgroundColor: 'rgba(255,107,53,0.08)' }]}>
           <MaterialCommunityIcons name="information" size={18} color={c.primary} />
           <Text style={{ flex: 1, marginLeft: 8, fontSize: 12, color: c.primary }}>
             Customize templates for auto-messages. Use variables in {'{curly braces}'} for personalization.

@@ -91,7 +91,7 @@ export default function PlansSettingsScreen({ navigation }) {
         <Card key={plan.id} style={[styles.planCard, { backgroundColor: c.surface }]}>
           <Card.Content>
             <View style={styles.row}>
-              <View style={[styles.iconBox, { backgroundColor: c.primary + '15' }]}>
+              <View style={[styles.iconBox, { backgroundColor: 'rgba(255,107,53,0.12)' }]}>
                 <MaterialCommunityIcons name="tag" size={22} color={c.primary} />
               </View>
               <View style={{ flex: 1, marginLeft: 10 }}>

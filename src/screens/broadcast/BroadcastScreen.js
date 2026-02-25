@@ -106,7 +106,7 @@ export default function BroadcastScreen({ navigation }) {
       <Text style={[styles.secTitle, { color: c.text }]}>Select Group</Text>
       <View style={styles.groupRow}>
         {groups.map(g => (
-          <TouchableOpacity key={g.id} style={[styles.groupBtn, selectedGroup === g.id && { backgroundColor: c.primary + '20', borderColor: c.primary }]}
+          <TouchableOpacity key={g.id} style={[styles.groupBtn, selectedGroup === g.id && { backgroundColor: 'rgba(255,107,53,0.15)', borderColor: c.primary }]}
             onPress={() => setSelectedGroup(g.id)}>
             <MaterialCommunityIcons name={g.icon} size={22} color={selectedGroup === g.id ? c.primary : c.muted} />
             <Text style={{ fontSize: 10, color: selectedGroup === g.id ? c.primary : c.muted, marginTop: 2 }}>{g.label}</Text>
@@ -114,7 +114,7 @@ export default function BroadcastScreen({ navigation }) {
         ))}
       </View>
 
-      <View style={[styles.countBox, { backgroundColor: c.primary + '10' }]}>
+      <View style={[styles.countBox, { backgroundColor: 'rgba(255,107,53,0.08)' }]}>
         <MaterialCommunityIcons name="account-group" size={18} color={c.primary} />
         <Text style={{ color: c.primary, fontWeight: '600', marginLeft: 6 }}>{getGroupMembers().length} recipients</Text>
       </View>

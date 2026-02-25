@@ -123,11 +123,14 @@ export default function PaymentsScreen({ navigation }) {
         {[
           { id: 'all', l: 'All' }, { id: 'today', l: 'Today' }, { id: 'week', l: 'This Week' },
           { id: 'month', l: 'This Month' }, { id: 'pending', l: 'Partial' },
-        ].map(f => (
-          <Chip key={f.id} selected={selectedFilter === f.id} onPress={() => setSelectedFilter(f.id)}
-            style={[styles.filterChip, selectedFilter === f.id && { backgroundColor: c.primary + '20' }]}
-            textStyle={{ fontSize: 12, color: selectedFilter === f.id ? c.primary : c.muted }}>{f.l}</Chip>
-        ))}
+        ].map(f => {
+          const isSelected = selectedFilter === f.id;
+          return (
+            <Chip key={f.id} selected={isSelected} onPress={() => setSelectedFilter(f.id)}
+              style={[styles.filterChip, isSelected && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
+              textStyle={{ fontSize: 12, color: isSelected ? c.primary : c.muted }}>{f.l}</Chip>
+          );
+        })}
       </ScrollView>
 
       <FlatList data={getFiltered()} renderItem={renderPayment} keyExtractor={item => item.id}

@@ -275,7 +275,7 @@ export default function NotificationsScreen({ navigation }) {
       <View style={styles.filterRow}>
         {filterChips.map(f => (
           <Chip key={f.id} selected={filter === f.id} onPress={() => setFilter(f.id)}
-            style={[styles.fChip, filter === f.id && { backgroundColor: c.primary + '20' }]}
+            style={[styles.fChip, filter === f.id && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
             textStyle={{ fontSize: 11, color: filter === f.id ? c.primary : c.muted }}>{f.label}</Chip>
         ))}
       </View>

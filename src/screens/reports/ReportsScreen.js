@@ -143,7 +143,7 @@ export default function ReportsScreen({ navigation }) {
             {getPlanDistribution().map(([plan, count]) => (
               <View key={plan} style={styles.planRow}>
                 <Text style={{ flex: 1, fontSize: 13, color: c.text }}>{plan}</Text>
-                <View style={[styles.planBar, { width: `${Math.max((count / members.length) * 100, 5)}%`, backgroundColor: c.primary + '30' }]} />
+                <View style={[styles.planBar, { width: `${Math.max((count / members.length) * 100, 5)}%`, backgroundColor: 'rgba(255,107,53,0.2)' }]} />
                 <Text style={{ fontSize: 13, fontWeight: '600', color: c.primary, minWidth: 30, textAlign: 'right' }}>{count}</Text>
               </View>
             ))}

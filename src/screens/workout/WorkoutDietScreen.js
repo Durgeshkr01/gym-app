@@ -79,7 +79,7 @@ export default function WorkoutDietScreen({ navigation }) {
             <View style={styles.chipRow}>
               {workoutCategories.map(cat => (
                 <Chip key={cat} selected={form.category === cat} onPress={() => setForm(p => ({ ...p, category: cat }))}
-                  style={[styles.chip, form.category === cat && { backgroundColor: c.primary + '20' }]}
+                  style={[styles.chip, form.category === cat && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
                   textStyle={{ fontSize: 11 }}>{cat}</Chip>
               ))}
             </View>
@@ -109,13 +109,13 @@ export default function WorkoutDietScreen({ navigation }) {
           <Card key={plan.id} style={[styles.planCard, { backgroundColor: c.surface }]}>
             <Card.Content>
               <View style={styles.row}>
-                <View style={[styles.iconBox, { backgroundColor: c.primary + '15' }]}>
+                <View style={[styles.iconBox, { backgroundColor: 'rgba(255,107,53,0.12)' }]}>
                   <MaterialCommunityIcons name="dumbbell" size={22} color={c.primary} />
                 </View>
                 <View style={{ flex: 1, marginLeft: 10 }}>
                   <Text style={[styles.planName, { color: c.text }]}>{plan.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Chip mode="flat" style={{ height: 20, backgroundColor: c.primary + '12' }}
+                    <Chip mode="flat" style={{ height: 20, backgroundColor: 'rgba(255,107,53,0.1)' }}
                       textStyle={{ fontSize: 9, color: c.primary }}>{plan.category}</Chip>
                     {plan.duration ? <Text style={{ fontSize: 11, color: c.muted }}>⏱ {plan.duration}</Text> : null}
                   </View>

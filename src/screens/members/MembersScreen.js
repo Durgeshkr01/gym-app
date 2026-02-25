@@ -9,7 +9,7 @@ import { openWhatsApp, makeCall, searchMembers, getStatusColor, getStatusLabel, 
 
 export default function MembersScreen({ navigation, route }) {
   const { theme } = useTheme();
-  const { members, getMemberStatus, deleteMember, checkIn, attendance } = useData();
+  const { members, getMemberStatus, deleteMember, checkIn, checkOut, attendance } = useData();
   const [searchQuery, setSearchQuery] = useState(route?.params?.search || '');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [menuVisible, setMenuVisible] = useState(false);
@@ -53,9 +53,28 @@ export default function MembersScreen({ navigation, route }) {
     ]);
   };
 
-  const handleCheckIn = async (item) => {
-    const result = await checkIn(item.id);
-    if (result) Alert.alert('Success', `${item.name} checked in!`);
+  const isMemberCheckedIn = (memberId) => {
+    const today = new Date().toDateString();
+    const todayRecords = attendance.filter(a =>
+      a.memberId === memberId && new Date(a.timestamp).toDateString() === today
+    ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    let checkedIn = false;
+    todayRecords.forEach(r => {
+      if (r.type === 'checkin') checkedIn = true;
+      if (r.type === 'checkout') checkedIn = false;
+    });
+    return checkedIn;
+  };
+
+  const handleCheckInOut = async (item) => {
+    const isIn = isMemberCheckedIn(item.id);
+    if (isIn) {
+      const result = await checkOut(item.id);
+      if (result) Alert.alert('Check Out', `${item.name} checked out!`);
+    } else {
+      const result = await checkIn(item.id);
+      if (result) Alert.alert('Check In', `${item.name} checked in!`);
+    }
   };
 
   const renderMember = ({ item }) => {
@@ -82,19 +101,19 @@ export default function MembersScreen({ navigation, route }) {
                 <Text style={[styles.infoLabel, { color: c.muted }]}>Name:</Text>
                 <Text style={[styles.infoValue, { color: c.text }]}>{item.name}</Text>
               </View>
-              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <Divider style={{ backgroundColor: 'rgba(150,150,150,0.2)' }} />
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, { color: c.muted }]}>Membership:</Text>
                 <Text style={[styles.infoValue, { color: c.text }]}>{item.plan || '-'}</Text>
               </View>
-              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <Divider style={{ backgroundColor: 'rgba(150,150,150,0.2)' }} />
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, { color: c.muted }]}>Expiry:</Text>
                 <Text style={[styles.infoValue, { color: isExpired ? '#E53935' : '#4CAF50', fontWeight: '600' }]}>
                   {formatDisplayDate(item.endDate)}
                 </Text>
               </View>
-              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <Divider style={{ backgroundColor: 'rgba(150,150,150,0.2)' }} />
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, { color: c.muted }]}>Last Attendance:</Text>
                 <Text style={[styles.infoValue, { color: c.text }]}>{getLastAttendance(item.id)}</Text>
@@ -104,11 +123,16 @@ export default function MembersScreen({ navigation, route }) {
             {/* Action Buttons */}
             <View style={styles.btnGrid}>
               <View style={styles.btnRow}>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#4CAF50' }]}
-                  onPress={() => handleCheckIn(item)}>
-                  <MaterialCommunityIcons name="login" size={18} color="#fff" />
-                  <Text style={styles.btnText}>Check In</Text>
-                </TouchableOpacity>
+                {(() => {
+                  const isIn = isMemberCheckedIn(item.id);
+                  return (
+                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: isIn ? '#FF5252' : '#4CAF50' }]}
+                      onPress={() => handleCheckInOut(item)}>
+                      <MaterialCommunityIcons name={isIn ? 'logout' : 'login'} size={18} color="#fff" />
+                      <Text style={styles.btnText}>{isIn ? 'Check Out' : 'Check In'}</Text>
+                    </TouchableOpacity>
+                  );
+                })()}
                 <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2196F3' }]}
                   onPress={() => navigation.navigate('MemberDetail', { memberId: item.id })}>
                   <MaterialCommunityIcons name="information" size={18} color="#fff" />
@@ -146,7 +170,7 @@ export default function MembersScreen({ navigation, route }) {
       <View style={styles.filterRow}>
         {filters.map(f => (
           <Chip key={f.id} selected={selectedFilter === f.id} onPress={() => setSelectedFilter(f.id)}
-            style={[styles.filterChip, selectedFilter === f.id && { backgroundColor: c.primary + '20' }]}
+            style={[styles.filterChip, selectedFilter === f.id && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
             textStyle={{ fontSize: 12, color: selectedFilter === f.id ? c.primary : c.muted }}>
             {f.label}
           </Chip>

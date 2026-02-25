@@ -144,7 +144,9 @@ const convertTo24h = (t) => {
 const fbToArray = (obj) => {
   if (!obj) return [];
   if (Array.isArray(obj)) return obj.filter(Boolean);
-  return Object.values(obj).filter(Boolean);
+  return Object.entries(obj)
+    .filter(([_, v]) => v != null)
+    .map(([key, val]) => ({ ...val, id: val.id || key }));
 };
 
 // ============= DATA MIGRATION (Old gymData → New appData) =============
