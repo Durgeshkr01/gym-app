@@ -43,20 +43,19 @@ export default function PaymentsScreen({ navigation }) {
 
   const handleDeletePayment = (item) => {
     if (!item || !item.id) {
-      Alert.alert('Debug', 'Item: ' + JSON.stringify(item ? { id: item.id, keys: Object.keys(item) } : 'null'));
+      Alert.alert('Error', 'Payment ID missing - cannot delete');
       return;
     }
     Alert.alert(
       'Delete Payment',
-      `Delete ₹${item.amount} payment of ${item.memberName}?\n\nID: ${item.id}`,
+      `Delete ₹${item.amount} payment of ${item.memberName}?`,
       [
-        { text: 'Cancel' },
+        { text: 'Cancel', style: 'cancel' },
         { text: 'Delete', style: 'destructive', onPress: async () => {
           try {
-            Alert.alert('Deleting...', 'Payment ID: ' + item.id);
             const result = await deletePayment(item.id);
-            if (result !== false) {
-              Alert.alert('Deleted', 'Payment record deleted successfully');
+            if (result === true) {
+              Alert.alert('Success', 'Payment deleted successfully');
             }
           } catch (e) {
             Alert.alert('Error', 'Delete failed: ' + e.message);
