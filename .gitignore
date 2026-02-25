@@ -1,6 +1,7 @@
 # Node modules
 node_modules/
 npm-debug.log*
+npm-debug.*
 yarn-debug.log*
 yarn-error.log*
 
@@ -30,12 +31,22 @@ android/app/release/
 ios/Pods/
 ios/build/
 
+# Certificates and Keys
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+
+# macOS
 .DS_Store
 
 # Logs
@@ -55,3 +66,8 @@ build/
 # Temporary files
 tmp/
 temp/
+
+# Backups
+firebase_backup.json
+DataContext_AsyncStorage_backup.js
+DataContext_Firebase.js
