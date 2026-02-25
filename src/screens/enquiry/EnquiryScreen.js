@@ -63,16 +63,16 @@ export default function EnquiryScreen({ navigation }) {
     <Card style={[styles.card, { backgroundColor: c.surface }]}>
       <Card.Content>
         <View style={styles.row}>
-          <Avatar.Text size={44} label={item.name?.substring(0, 2).toUpperCase()}
-            style={{ backgroundColor: (statusColors[item.status] || '#999') + '25' }}
+          <Avatar.Text size={44} label={item.name?.substring(0, 2).toUpperCase() || '??'}
+            style={{ backgroundColor: 'rgba(100,100,100,0.15)' }}
             labelStyle={{ color: statusColors[item.status] || '#999', fontWeight: 'bold' }} />
           <View style={styles.info}>
             <Text style={[styles.name, { color: c.text }]}>{item.name}</Text>
             <Text style={{ fontSize: 12, color: c.muted }}>{item.phone} • {item.interest}</Text>
             <Text style={{ fontSize: 11, color: c.muted }}>Source: {item.source} • {formatDisplayDate(item.createdAt)}</Text>
           </View>
-          <Chip mode="flat" style={{ backgroundColor: (statusColors[item.status] || '#999') + '18', height: 24 }}
-            textStyle={{ fontSize: 10, color: statusColors[item.status] }}>{statusLabels[item.status] || item.status}</Chip>
+          <Chip mode="flat" style={{ backgroundColor: 'rgba(100,100,100,0.12)', height: 24 }}
+            textStyle={{ fontSize: 10, color: statusColors[item.status] || '#999' }}>{statusLabels[item.status] || item.status}</Chip>
         </View>
         {item.notes ? <Text style={{ fontSize: 12, color: c.muted, marginTop: 6, fontStyle: 'italic' }}>"{item.notes}"</Text> : null}
         <View style={styles.actions}>

@@ -639,10 +639,15 @@ export function DataProvider({ children }) {
         Alert.alert('Error', 'Payment ID not found');
         return false;
       }
-      await remove(ref(db, `${P.PAYMENTS}/${paymentId}`));
+      // Immediately update local state so UI refreshes right away
+      setPayments(prev => prev.filter(p => p.id !== paymentId));
+      // Also delete from Firebase
+      const updates = {};
+      updates[`${P.PAYMENTS}/${paymentId}`] = null;
+      await update(ref(db, '/'), updates);
       return true;
     } catch (e) {
-      Alert.alert('Error', 'Failed to delete payment: ' + e.message);
+      Alert.alert('Error', 'Delete failed: ' + e.message);
       return false;
     }
   }, []);
