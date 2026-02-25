@@ -43,16 +43,17 @@ export default function PaymentsScreen({ navigation }) {
 
   const handleDeletePayment = (item) => {
     if (!item || !item.id) {
-      Alert.alert('Error', 'Cannot delete: payment ID missing');
+      Alert.alert('Debug', 'Item: ' + JSON.stringify(item ? { id: item.id, keys: Object.keys(item) } : 'null'));
       return;
     }
     Alert.alert(
       'Delete Payment',
-      `Delete ₹${item.amount} payment of ${item.memberName}?`,
+      `Delete ₹${item.amount} payment of ${item.memberName}?\n\nID: ${item.id}`,
       [
         { text: 'Cancel' },
         { text: 'Delete', style: 'destructive', onPress: async () => {
           try {
+            Alert.alert('Deleting...', 'Payment ID: ' + item.id);
             const result = await deletePayment(item.id);
             if (result !== false) {
               Alert.alert('Deleted', 'Payment record deleted successfully');
@@ -109,45 +110,49 @@ export default function PaymentsScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>
-      {/* Stats */}
-      <View style={styles.statsGrid}>
-        {[
-          { l: 'Today', v: formatCurrency(stats.todayCollection || 0), co: '#4CAF50', i: 'cash' },
-          { l: 'Month', v: formatCurrency(stats.monthCollection || 0), co: '#2196F3', i: 'cash-multiple' },
-          { l: 'Pending', v: formatCurrency(stats.totalPending || 0), co: '#FF5252', i: 'cash-remove' },
-          { l: 'Total', v: formatCurrency(stats.totalRevenue || 0), co: '#FF6B35', i: 'chart-line' },
-        ].map((s, i) => (
-          <View key={i} style={styles.statCardWrapper}>
-            <Card style={[styles.statCard, { backgroundColor: s.co }]}>
-              <Card.Content style={styles.statContent}>
-                <MaterialCommunityIcons name={s.i} size={22} color="#fff" />
-                <Text style={styles.statVal}>{s.v}</Text>
-                <Text style={styles.statLbl}>{s.l}</Text>
-              </Card.Content>
-            </Card>
-          </View>
-        ))}
-      </View>
-
-      <Searchbar placeholder="Search by member name..." value={searchQuery} onChangeText={setSearchQuery}
-        style={[styles.search, { backgroundColor: c.surface }]} />
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
-        {[
-          { id: 'all', l: 'All' }, { id: 'today', l: 'Today' }, { id: 'week', l: 'This Week' },
-          { id: 'month', l: 'This Month' }, { id: 'pending', l: 'Partial' },
-        ].map(f => {
-          const isSelected = selectedFilter === f.id;
-          return (
-            <Chip key={f.id} selected={isSelected} onPress={() => setSelectedFilter(f.id)}
-              style={[styles.filterChip, isSelected && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
-              textStyle={{ fontSize: 12, color: isSelected ? c.primary : c.muted }}>{f.l}</Chip>
-          );
-        })}
-      </ScrollView>
-
       <FlatList data={getFiltered()} renderItem={renderPayment} keyExtractor={(item, idx) => item.id || String(idx)}
         contentContainerStyle={{ paddingBottom: 80 }}
+        ListHeaderComponent={
+          <>
+            {/* Stats */}
+            <View style={styles.statsGrid}>
+              {[
+                { l: 'Today', v: formatCurrency(stats.todayCollection || 0), co: '#4CAF50', i: 'cash' },
+                { l: 'Month', v: formatCurrency(stats.monthCollection || 0), co: '#2196F3', i: 'cash-multiple' },
+                { l: 'Pending', v: formatCurrency(stats.totalPending || 0), co: '#FF5252', i: 'cash-remove' },
+                { l: 'Total', v: formatCurrency(stats.totalRevenue || 0), co: '#FF6B35', i: 'chart-line' },
+              ].map((s, i) => (
+                <View key={i} style={styles.statCardWrapper}>
+                  <Card style={[styles.statCard, { backgroundColor: s.co }]}>
+                    <Card.Content style={styles.statContent}>
+                      <MaterialCommunityIcons name={s.i} size={22} color="#fff" />
+                      <Text style={styles.statVal}>{s.v}</Text>
+                      <Text style={styles.statLbl}>{s.l}</Text>
+                    </Card.Content>
+                  </Card>
+                </View>
+              ))}
+            </View>
+
+            <Searchbar placeholder="Search by member name..." value={searchQuery} onChangeText={setSearchQuery}
+              style={[styles.search, { backgroundColor: c.surface }]} />
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}
+              contentContainerStyle={{ alignItems: 'center', paddingVertical: 4 }}>
+              {[
+                { id: 'all', l: 'All' }, { id: 'today', l: 'Today' }, { id: 'week', l: 'This Week' },
+                { id: 'month', l: 'This Month' }, { id: 'pending', l: 'Partial' },
+              ].map(f => {
+                const isSelected = selectedFilter === f.id;
+                return (
+                  <Chip key={f.id} selected={isSelected} onPress={() => setSelectedFilter(f.id)}
+                    style={[styles.filterChip, isSelected && { backgroundColor: 'rgba(255,107,53,0.15)' }]}
+                    textStyle={{ fontSize: 12, color: isSelected ? c.primary : c.muted }}>{f.l}</Chip>
+                );
+              })}
+            </ScrollView>
+          </>
+        }
         ListEmptyComponent={
           <View style={styles.empty}>
             <MaterialCommunityIcons name="cash" size={50} color={c.muted} />
@@ -167,8 +172,8 @@ const styles = StyleSheet.create({
   statVal: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginTop: 4 },
   statLbl: { color: 'rgba(255,255,255,0.85)', fontSize: 11 },
   search: { marginHorizontal: 12, marginBottom: 8, elevation: 2, borderRadius: 10 },
-  filterRow: { paddingHorizontal: 12, marginBottom: 10, maxHeight: 40 },
-  filterChip: { marginRight: 8, height: 32 },
+  filterRow: { paddingHorizontal: 12, marginBottom: 10 },
+  filterChip: { marginRight: 8, height: 36 },
   payCard: { marginHorizontal: 12, marginVertical: 4, elevation: 2, borderRadius: 10 },
   payRow: { flexDirection: 'row', alignItems: 'center' },
   payIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },

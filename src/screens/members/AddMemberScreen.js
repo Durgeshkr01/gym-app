@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { Card, Text, TextInput, Button, Chip, Menu, Divider, RadioButton, Checkbox } from 'react-native-paper';
+import { Card, Text, TextInput, Button, Chip, Menu, Divider, RadioButton, Checkbox, Portal, Dialog } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -60,7 +60,7 @@ export default function AddMemberScreen({ navigation, route }) {
   const selectPlan = (plan) => {
     updateField('plan', plan.name);
     updateField('planId', plan.id);
-    updateField('planAmount', plan.price.toString());
+    updateField('planAmount', String(plan.amount || plan.price || 0));
     setPlanMenuVisible(false);
   };
 
@@ -215,19 +215,30 @@ export default function AddMemberScreen({ navigation, route }) {
 
         {/* Select Plan */}
         <Text style={[styles.label, { color: c.text }]}>Select Plan *</Text>
-        <Menu visible={planMenuVisible} onDismiss={() => setPlanMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setPlanMenuVisible(true)}>
-              <TextInput value={form.plan ? `${form.plan} - ₹${form.planAmount}` : '-- Select a Plan --'}
-                mode="outlined" style={styles.input} editable={false}
-                right={<TextInput.Icon icon="chevron-down" />} dense />
-            </TouchableOpacity>
-          }>
-          {plans.map(p => (
-            <Menu.Item key={p.id} onPress={() => selectPlan(p)}
-              title={`${p.name} - ₹${p.price} (${p.duration} days)`} />
-          ))}
-        </Menu>
+        <TouchableOpacity onPress={() => setPlanMenuVisible(true)}>
+          <TextInput value={form.plan ? `${form.plan} - ₹${form.planAmount}` : '-- Select a Plan --'}
+            mode="outlined" style={styles.input} editable={false} pointerEvents="none"
+            right={<TextInput.Icon icon="chevron-down" />} dense />
+        </TouchableOpacity>
+        <Portal>
+          <Dialog visible={planMenuVisible} onDismiss={() => setPlanMenuVisible(false)} style={{ backgroundColor: '#fff', borderRadius: 12 }}>
+            <Dialog.Title style={{ fontSize: 16 }}>Select Plan</Dialog.Title>
+            <Dialog.ScrollArea style={{ maxHeight: 300, paddingHorizontal: 0 }}>
+              <ScrollView>
+                {plans.map(p => (
+                  <TouchableOpacity key={p.id} onPress={() => selectPlan(p)}
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: form.planId === p.id ? 'rgba(255,107,53,0.1)' : 'transparent' }}>
+                    <RadioButton value={p.id} status={form.planId === p.id ? 'checked' : 'unchecked'} color="#FF6B35" />
+                    <Text style={{ fontSize: 14, marginLeft: 8, flex: 1 }}>{p.name} - ₹{p.amount || p.price || 0} ({p.duration} days)</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </Dialog.ScrollArea>
+            <Dialog.Actions>
+              <Button onPress={() => setPlanMenuVisible(false)}>Cancel</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
 
         {/* Amount Paid + Payment Mode */}
         <View style={styles.row}>
@@ -239,18 +250,28 @@ export default function AddMemberScreen({ navigation, route }) {
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>💳 Payment Mode</Text>
-            <Menu visible={payModeMenuVisible} onDismiss={() => setPayModeMenuVisible(false)}
-              anchor={
-                <TouchableOpacity onPress={() => setPayModeMenuVisible(true)}>
-                  <TextInput value={form.paymentMode} mode="outlined" style={styles.input} editable={false}
-                    right={<TextInput.Icon icon="chevron-down" />} dense />
-                </TouchableOpacity>
-              }>
-              {['Online', 'Cash', 'UPI', 'Card'].map(m => (
-                <Menu.Item key={m} onPress={() => { updateField('paymentMode', m); setPayModeMenuVisible(false); }}
-                  title={m} leadingIcon={m === 'Online' ? 'web' : m === 'Cash' ? 'cash' : m === 'UPI' ? 'cellphone' : 'credit-card'} />
-              ))}
-            </Menu>
+            <TouchableOpacity onPress={() => setPayModeMenuVisible(true)}>
+              <TextInput value={form.paymentMode} mode="outlined" style={styles.input} editable={false} pointerEvents="none"
+                right={<TextInput.Icon icon="chevron-down" />} dense />
+            </TouchableOpacity>
+            <Portal>
+              <Dialog visible={payModeMenuVisible} onDismiss={() => setPayModeMenuVisible(false)} style={{ backgroundColor: '#fff', borderRadius: 12 }}>
+                <Dialog.Title style={{ fontSize: 16 }}>Payment Mode</Dialog.Title>
+                <Dialog.Content>
+                  {['Online', 'Cash', 'UPI', 'Card'].map(m => (
+                    <TouchableOpacity key={m} onPress={() => { updateField('paymentMode', m); setPayModeMenuVisible(false); }}
+                      style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, backgroundColor: form.paymentMode === m ? 'rgba(255,107,53,0.1)' : 'transparent', borderRadius: 8, paddingHorizontal: 12 }}>
+                      <RadioButton value={m} status={form.paymentMode === m ? 'checked' : 'unchecked'} color="#FF6B35" />
+                      <MaterialCommunityIcons name={m === 'Online' ? 'web' : m === 'Cash' ? 'cash' : m === 'UPI' ? 'cellphone' : 'credit-card'} size={20} color="#666" style={{ marginLeft: 8 }} />
+                      <Text style={{ fontSize: 14, marginLeft: 8 }}>{m}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setPayModeMenuVisible(false)}>Cancel</Button>
+                </Dialog.Actions>
+              </Dialog>
+            </Portal>
           </View>
         </View>
 

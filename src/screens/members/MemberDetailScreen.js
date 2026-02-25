@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { Card, Text, Button, Avatar, Chip, Divider, Menu, IconButton, TextInput } from 'react-native-paper';
+import { Card, Text, Button, Avatar, Chip, Divider, Menu, IconButton, TextInput, Portal, Dialog, RadioButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -171,15 +171,29 @@ export default function MemberDetailScreen({ navigation, route }) {
         <Card style={[styles.card, { backgroundColor: '#E8F5E9' }]}>
           <Card.Content>
             <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Renew Membership</Text>
-            <Menu visible={renewMenuVisible} onDismiss={() => setRenewMenuVisible(false)}
-              anchor={
-                <TouchableOpacity onPress={() => setRenewMenuVisible(true)}>
-                  <TextInput label="Select Plan" value={plans.find(p => p.id === renewPlanId)?.name || ''} mode="outlined"
-                    editable={false} style={{ marginBottom: 10 }} right={<TextInput.Icon icon="chevron-down" />} />
-                </TouchableOpacity>
-              }>
-              {plans.map(p => <Menu.Item key={p.id} onPress={() => { setRenewPlanId(p.id); setRenewAmount(p.price.toString()); setRenewMenuVisible(false); }} title={`${p.name} - ₹${p.price}`} />)}
-            </Menu>
+            <TouchableOpacity onPress={() => setRenewMenuVisible(true)}>
+              <TextInput label="Select Plan" value={plans.find(p => p.id === renewPlanId)?.name || ''} mode="outlined"
+                editable={false} pointerEvents="none" style={{ marginBottom: 10 }} right={<TextInput.Icon icon="chevron-down" />} />
+            </TouchableOpacity>
+            <Portal>
+              <Dialog visible={renewMenuVisible} onDismiss={() => setRenewMenuVisible(false)} style={{ backgroundColor: '#fff', borderRadius: 12 }}>
+                <Dialog.Title style={{ fontSize: 16 }}>Select Plan</Dialog.Title>
+                <Dialog.ScrollArea style={{ maxHeight: 300, paddingHorizontal: 0 }}>
+                  <ScrollView>
+                    {plans.map(p => (
+                      <TouchableOpacity key={p.id} onPress={() => { setRenewPlanId(p.id); setRenewAmount(String(p.amount || p.price || 0)); setRenewMenuVisible(false); }}
+                        style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: renewPlanId === p.id ? 'rgba(255,107,53,0.1)' : 'transparent' }}>
+                        <RadioButton value={p.id} status={renewPlanId === p.id ? 'checked' : 'unchecked'} color="#FF6B35" />
+                        <Text style={{ fontSize: 14, marginLeft: 8, flex: 1 }}>{p.name} - ₹{p.amount || p.price || 0}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </Dialog.ScrollArea>
+                <Dialog.Actions>
+                  <Button onPress={() => setRenewMenuVisible(false)}>Cancel</Button>
+                </Dialog.Actions>
+              </Dialog>
+            </Portal>
             <TextInput label="Paid Amount" value={renewAmount} onChangeText={setRenewAmount}
               mode="outlined" keyboardType="numeric" style={{ marginBottom: 10 }} />
             <View style={{ flexDirection: 'row' }}>
