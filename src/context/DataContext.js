@@ -634,7 +634,17 @@ export function DataProvider({ children }) {
   }, []);
 
   const deletePayment = useCallback(async (paymentId) => {
-    await remove(ref(db, `${P.PAYMENTS}/${paymentId}`));
+    try {
+      if (!paymentId) {
+        Alert.alert('Error', 'Payment ID not found');
+        return false;
+      }
+      await remove(ref(db, `${P.PAYMENTS}/${paymentId}`));
+      return true;
+    } catch (e) {
+      Alert.alert('Error', 'Failed to delete payment: ' + e.message);
+      return false;
+    }
   }, []);
 
   const getPaymentStats = useCallback(() => {

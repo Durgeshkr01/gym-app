@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Card, Text, Searchbar, Chip, Divider } from 'react-native-paper';
+import { View, StyleSheet, FlatList, ScrollView, Alert } from 'react-native';
+import { Card, Text, Searchbar, Chip, Divider, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
@@ -42,14 +42,24 @@ export default function PaymentsScreen({ navigation }) {
   };
 
   const handleDeletePayment = (item) => {
+    if (!item || !item.id) {
+      Alert.alert('Error', 'Cannot delete: payment ID missing');
+      return;
+    }
     Alert.alert(
       'Delete Payment',
       `Delete ₹${item.amount} payment of ${item.memberName}?`,
       [
         { text: 'Cancel' },
         { text: 'Delete', style: 'destructive', onPress: async () => {
-          await deletePayment(item.id);
-          Alert.alert('Deleted', 'Payment record deleted successfully');
+          try {
+            const result = await deletePayment(item.id);
+            if (result !== false) {
+              Alert.alert('Deleted', 'Payment record deleted successfully');
+            }
+          } catch (e) {
+            Alert.alert('Error', 'Delete failed: ' + e.message);
+          }
         }},
       ]
     );
@@ -82,13 +92,16 @@ export default function PaymentsScreen({ navigation }) {
             </View>
           </View>
           {/* Delete Button - Full width */}
-          <TouchableOpacity
+          <Button
+            mode="contained"
+            icon="delete"
             onPress={() => handleDeletePayment(item)}
-            style={styles.deleteBtn}
-            activeOpacity={0.7}>
-            <MaterialCommunityIcons name="delete" size={18} color="#fff" />
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', marginLeft: 6 }}>Delete Payment</Text>
-          </TouchableOpacity>
+            buttonColor="#F44336"
+            textColor="#fff"
+            style={{ marginTop: 10, borderRadius: 8 }}
+            labelStyle={{ fontSize: 12, fontWeight: '700' }}>
+            Delete Payment
+          </Button>
         </Card.Content>
       </Card>
     );
@@ -133,7 +146,7 @@ export default function PaymentsScreen({ navigation }) {
         })}
       </ScrollView>
 
-      <FlatList data={getFiltered()} renderItem={renderPayment} keyExtractor={item => item.id}
+      <FlatList data={getFiltered()} renderItem={renderPayment} keyExtractor={(item, idx) => item.id || String(idx)}
         contentContainerStyle={{ paddingBottom: 80 }}
         ListEmptyComponent={
           <View style={styles.empty}>
