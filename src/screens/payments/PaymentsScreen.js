@@ -55,33 +55,44 @@ export default function PaymentsScreen({ navigation }) {
     );
   };
 
-  const renderPayment = ({ item }) => (
-    <Card style={[styles.payCard, { backgroundColor: c.surface }]}>
-      <Card.Content style={styles.payRow}>
-        <View style={[styles.payIcon, { backgroundColor: item.status === 'paid' ? '#4CAF50' + '18' : '#FF9800' + '18' }]}>
-          <MaterialCommunityIcons name={item.status === 'paid' ? 'cash-check' : 'cash-remove'}
-            size={24} color={item.status === 'paid' ? '#4CAF50' : '#FF9800'} />
-        </View>
-        <View style={styles.payInfo}>
-          <Text style={[styles.payName, { color: c.text }]}>{item.memberName}</Text>
-          <Text style={{ fontSize: 12, color: c.muted }}>{item.type} • {item.plan}</Text>
-          <Text style={{ fontSize: 11, color: c.muted }}>{formatDisplayDate(item.date)} {formatTime(item.date)}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={[styles.payAmount, { color: '#4CAF50' }]}>₹{item.amount}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-            <Chip mode="flat" style={{ backgroundColor: item.status === 'paid' ? '#4CAF50' + '18' : '#FF9800' + '18', height: 22 }}
-              textStyle={{ fontSize: 10, color: item.status === 'paid' ? '#4CAF50' : '#FF9800' }}>
-              {item.status === 'paid' ? 'Paid' : 'Partial'}
-            </Chip>
-            <TouchableOpacity onPress={() => handleDeletePayment(item)} style={{ marginLeft: 6, padding: 4 }}>
-              <MaterialCommunityIcons name="delete-outline" size={18} color="#FF5252" />
-            </TouchableOpacity>
+  const renderPayment = ({ item }) => {
+    const isPaid = item.status === 'paid';
+    const chipBg = isPaid ? 'rgba(76,175,80,0.15)' : 'rgba(255,152,0,0.15)';
+    const chipColor = isPaid ? '#4CAF50' : '#FF9800';
+
+    return (
+      <Card style={[styles.payCard, { backgroundColor: c.surface }]}>
+        <Card.Content>
+          <View style={styles.payRow}>
+            <View style={[styles.payIcon, { backgroundColor: chipBg }]}>
+              <MaterialCommunityIcons name={isPaid ? 'cash-check' : 'cash-remove'}
+                size={24} color={chipColor} />
+            </View>
+            <View style={styles.payInfo}>
+              <Text style={[styles.payName, { color: c.text }]}>{item.memberName}</Text>
+              <Text style={{ fontSize: 12, color: c.muted }}>{item.type} • {item.plan}</Text>
+              <Text style={{ fontSize: 11, color: c.muted }}>{formatDisplayDate(item.date)} {formatTime(item.date)}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={[styles.payAmount, { color: '#4CAF50' }]}>₹{item.amount}</Text>
+              <Chip mode="flat" style={{ backgroundColor: chipBg, height: 22, marginTop: 2 }}
+                textStyle={{ fontSize: 10, color: chipColor }}>
+                {isPaid ? 'Paid' : 'Partial'}
+              </Chip>
+            </View>
           </View>
-        </View>
-      </Card.Content>
-    </Card>
-  );
+          {/* Delete Button - Full width */}
+          <TouchableOpacity
+            onPress={() => handleDeletePayment(item)}
+            style={styles.deleteBtn}
+            activeOpacity={0.7}>
+            <MaterialCommunityIcons name="delete" size={18} color="#fff" />
+            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', marginLeft: 6 }}>Delete Payment</Text>
+          </TouchableOpacity>
+        </Card.Content>
+      </Card>
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>
@@ -142,11 +153,12 @@ const styles = StyleSheet.create({
   search: { marginHorizontal: 12, marginBottom: 8, elevation: 2, borderRadius: 10 },
   filterRow: { paddingHorizontal: 12, marginBottom: 10, maxHeight: 40 },
   filterChip: { marginRight: 8, height: 32 },
-  payCard: { marginHorizontal: 12, marginVertical: 3, elevation: 1, borderRadius: 10 },
+  payCard: { marginHorizontal: 12, marginVertical: 4, elevation: 2, borderRadius: 10 },
   payRow: { flexDirection: 'row', alignItems: 'center' },
   payIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   payInfo: { flex: 1, marginLeft: 12 },
   payName: { fontSize: 15, fontWeight: '600' },
   payAmount: { fontSize: 18, fontWeight: 'bold' },
+  deleteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F44336', paddingVertical: 8, borderRadius: 8, marginTop: 10 },
   empty: { alignItems: 'center', paddingTop: 60 },
 });
