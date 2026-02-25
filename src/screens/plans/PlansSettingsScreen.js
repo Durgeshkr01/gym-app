@@ -23,6 +23,7 @@ export default function PlansSettingsScreen({ navigation }) {
     const planData = {
       name: form.name,
       amount: Number(form.amount),
+      price: Number(form.amount),
       duration: Number(form.duration),
       description: form.description,
     };
@@ -38,7 +39,7 @@ export default function PlansSettingsScreen({ navigation }) {
   };
 
   const handleEdit = (plan) => {
-    setForm({ name: plan.name, amount: String(plan.amount), duration: String(plan.duration), description: plan.description || '' });
+    setForm({ name: plan.name, amount: String(plan.amount || plan.price || ''), duration: String(plan.duration), description: plan.description || '' });
     setEditingId(plan.id);
     setShowAdd(true);
   };
@@ -97,7 +98,7 @@ export default function PlansSettingsScreen({ navigation }) {
                 <Text style={{ fontSize: 15, fontWeight: '600', color: c.text }}>{plan.name}</Text>
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 3 }}>
                   <Chip mode="flat" style={{ height: 22, backgroundColor: '#4CAF5015' }}
-                    textStyle={{ fontSize: 10, color: '#4CAF50' }}>₹{plan.amount}</Chip>
+                    textStyle={{ fontSize: 10, color: '#4CAF50' }}>₹{plan.amount || plan.price || 0}</Chip>
                   <Chip mode="flat" style={{ height: 22, backgroundColor: '#2196F315' }}
                     textStyle={{ fontSize: 10, color: '#2196F3' }}>{plan.duration} days</Chip>
                 </View>
@@ -124,22 +125,22 @@ export default function PlansSettingsScreen({ navigation }) {
   );
 
   const renderSettingsTab = () => (
-    <ScrollView contentContainerStyle={{ padding: 15 }}>
+    <ScrollView contentContainerStyle={{ padding: 12 }}>
       <Card style={[styles.settingsCard, { backgroundColor: c.surface }]}>
         <Card.Content>
           <Text style={[styles.secTitle, { color: c.text }]}>Gym Details</Text>
           <TextInput label="Gym Name" value={localSettings.gymName || 'SG Fitness Evolution'}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymName: v }))}
-            mode="outlined" style={styles.inp} dense />
+            mode="outlined" style={styles.inp} />
           <TextInput label="Owner Name" value={localSettings.ownerName || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, ownerName: v }))}
-            mode="outlined" style={styles.inp} dense />
+            mode="outlined" style={styles.inp} />
           <TextInput label="Phone" value={localSettings.gymPhone || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymPhone: v }))}
-            mode="outlined" keyboardType="phone-pad" style={styles.inp} dense />
+            mode="outlined" keyboardType="phone-pad" style={styles.inp} />
           <TextInput label="Address" value={localSettings.gymAddress || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymAddress: v }))}
-            mode="outlined" style={styles.inp} dense />
+            mode="outlined" style={styles.inp} />
         </Card.Content>
       </Card>
 
@@ -148,10 +149,10 @@ export default function PlansSettingsScreen({ navigation }) {
           <Text style={[styles.secTitle, { color: c.text }]}>Fee Settings</Text>
           <TextInput label="Admission Fee (₹)" value={String(localSettings.admissionFee || 200)}
             onChangeText={v => setLocalSettings(p => ({ ...p, admissionFee: Number(v) || 0 }))}
-            mode="outlined" keyboardType="number-pad" style={styles.inp} dense />
+            mode="outlined" keyboardType="number-pad" style={styles.inp} />
           <TextInput label="Expiry Alert Days" value={String(localSettings.expiryAlertDays || 7)}
             onChangeText={v => setLocalSettings(p => ({ ...p, expiryAlertDays: Number(v) || 7 }))}
-            mode="outlined" keyboardType="number-pad" style={styles.inp} dense />
+            mode="outlined" keyboardType="number-pad" style={styles.inp} />
           <Text style={{ fontSize: 11, color: c.muted }}>Members will appear in "Expiring" list this many days before expiry</Text>
         </Card.Content>
       </Card>
@@ -199,7 +200,7 @@ export default function PlansSettingsScreen({ navigation }) {
           { value: 'plans', label: 'Plans', icon: 'tag' },
           { value: 'settings', label: 'Settings', icon: 'cog' },
         ]}
-        style={{ margin: 15, marginBottom: 5 }} />
+        style={{ marginHorizontal: 12, marginTop: 12, marginBottom: 5 }} />
       {tab === 'plans' ? renderPlansTab() : renderSettingsTab()}
       {tab === 'plans' && <FAB icon="plus" style={[styles.fab, { backgroundColor: c.primary }]} color="#fff"
         onPress={() => { setEditingId(null); setForm({ name: '', amount: '', duration: '', description: '' }); setShowAdd(true); }} />}

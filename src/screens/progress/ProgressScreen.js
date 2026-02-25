@@ -123,7 +123,8 @@ export default function ProgressScreen() {
       <Text style={styles.sectionTitle}>Body Measurements</Text>
       <View style={styles.measurementsGrid}>
         {measurements.map((item, index) => (
-          <Card key={index} style={styles.measurementCard}>
+          <View key={index} style={styles.measurementCardWrapper}>
+          <Card style={styles.measurementCard}>
             <Card.Content style={styles.measurementContent}>
               <View style={[styles.measurementIcon, { backgroundColor: item.color + '20' }]}>
                 <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
@@ -138,6 +139,7 @@ export default function ProgressScreen() {
               </Text>
             </Card.Content>
           </Card>
+          </View>
         ))}
       </View>
 
@@ -199,7 +201,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   periodSelector: {
-    padding: 15,
+    padding: 12,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
@@ -210,21 +212,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginTop: 20,
     marginBottom: 10,
     color: '#333',
   },
   chartCard: {
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginHorizontal: 12,
+    marginBottom: 12,
     elevation: 3,
   },
   chartHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 12,
   },
   currentWeight: {
     fontSize: 32,
@@ -252,17 +254,18 @@ const styles = StyleSheet.create({
   measurementsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  measurementCardWrapper: {
+    width: '50%',
+    padding: 4,
   },
   measurementCard: {
-    width: (width - 45) / 2,
-    marginBottom: 15,
     elevation: 2,
   },
   measurementContent: {
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 12,
   },
   measurementIcon: {
     width: 50,
@@ -288,12 +291,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addButton: {
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginBottom: 10,
     borderColor: '#FF6B35',
   },
   milestoneCard: {
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginBottom: 10,
     elevation: 2,
   },
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
   },
   milestoneInfo: {
     flex: 1,
-    marginLeft: 15,
+    marginLeft: 12,
   },
   milestoneTitle: {
     fontSize: 16,

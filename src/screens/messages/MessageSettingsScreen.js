@@ -131,7 +131,7 @@ export default function MessageSettingsScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>
-      <ScrollView contentContainerStyle={{ padding: 15, paddingBottom: 30 }}>
+      <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: 30 }}>
         {/* Info tip */}
         <View style={[styles.tipBox, { backgroundColor: c.primary + '10' }]}>
           <MaterialCommunityIcons name="information" size={18} color={c.primary} />

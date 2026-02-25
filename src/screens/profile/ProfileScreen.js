@@ -74,13 +74,15 @@ export default function ProfileScreen({ navigation }) {
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
         {profileStats.map((stat, index) => (
-          <Card key={index} style={styles.statCard}>
+          <View key={index} style={styles.statCardWrapper}>
+          <Card style={styles.statCard}>
             <Card.Content style={styles.statContent}>
               <MaterialCommunityIcons name={stat.icon} size={28} color={stat.color} />
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
             </Card.Content>
           </Card>
+          </View>
         ))}
       </View>
 
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   headerCard: {
-    margin: 15,
+    margin: 12,
     elevation: 4,
   },
   profileHeader: {
@@ -201,17 +203,18 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  statCardWrapper: {
+    width: '50%',
+    padding: 4,
   },
   statCard: {
-    width: (width - 45) / 2,
-    marginBottom: 15,
     elevation: 2,
   },
   statContent: {
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 12,
   },
   statValue: {
     fontSize: 20,
@@ -227,14 +230,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginTop: 10,
     marginBottom: 10,
     color: '#333',
   },
   chartCard: {
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginHorizontal: 12,
+    marginBottom: 12,
     elevation: 3,
   },
   chart: {
@@ -248,15 +251,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   menuCard: {
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginHorizontal: 12,
+    marginBottom: 12,
     elevation: 3,
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
+    padding: 14,
   },
   menuLeft: {
     flexDirection: 'row',
@@ -265,15 +268,15 @@ const styles = StyleSheet.create({
   menuLabel: {
     fontSize: 16,
     color: '#333',
-    marginLeft: 15,
+    marginLeft: 12,
   },
   divider: {
     height: 1,
     backgroundColor: '#E0E0E0',
-    marginHorizontal: 15,
+    marginHorizontal: 12,
   },
   logoutButton: {
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginTop: 10,
     backgroundColor: '#F44336',
   },

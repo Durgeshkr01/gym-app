@@ -78,8 +78,15 @@ export default function BroadcastScreen({ navigation }) {
     setSelectedMembers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
+  const getTemplateText = (key) => {
+    const t = messageTemplates[key];
+    if (!t) return '';
+    if (typeof t === 'string') return t;
+    return t.whatsapp || t.sms || '';
+  };
+
   const handleSaveTemplate = async (key) => {
-    const updated = { ...messageTemplates, [key]: templateText };
+    const updated = { ...messageTemplates, [key]: { whatsapp: templateText, sms: templateText } };
     await saveMessageTemplates(updated);
     setEditingTemplate(null);
     Alert.alert('Saved', 'Template updated!');
@@ -133,7 +140,7 @@ export default function BroadcastScreen({ navigation }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
         {templateKeys.map(t => (
           <Chip key={t.key} icon={t.icon} mode="outlined" style={{ marginRight: 6 }}
-            onPress={() => setMessage(messageTemplates[t.key] || `Hi {name}, message about ${t.label.toLowerCase()}`)}>
+            onPress={() => setMessage(getTemplateText(t.key) || `Hi {name}, message about ${t.label.toLowerCase()}`)}>
             {t.label}
           </Chip>
         ))}
@@ -168,7 +175,7 @@ export default function BroadcastScreen({ navigation }) {
                 <Button compact mode="contained" onPress={() => handleSaveTemplate(t.key)}
                   style={{ backgroundColor: c.primary }}>Save</Button>
               ) : (
-                <TouchableOpacity onPress={() => { setEditingTemplate(t.key); setTemplateText(messageTemplates[t.key] || ''); }}>
+                <TouchableOpacity onPress={() => { setEditingTemplate(t.key); setTemplateText(getTemplateText(t.key)); }}>
                   <MaterialCommunityIcons name="pencil" size={20} color={c.primary} />
                 </TouchableOpacity>
               )}
@@ -177,7 +184,7 @@ export default function BroadcastScreen({ navigation }) {
               <TextInput value={templateText} onChangeText={setTemplateText} mode="outlined"
                 multiline numberOfLines={3} style={{ marginTop: 8, backgroundColor: 'transparent' }} dense />
             ) : (
-              <Text style={{ fontSize: 12, color: c.muted, marginTop: 8 }}>{messageTemplates[t.key] || 'No template set'}</Text>
+              <Text style={{ fontSize: 12, color: c.muted, marginTop: 8 }}>{getTemplateText(t.key) || 'No template set'}</Text>
             )}
           </Card.Content>
         </Card>
@@ -227,7 +234,7 @@ export default function BroadcastScreen({ navigation }) {
           { value: 'templates', label: 'Templates', icon: 'file-document' },
           { value: 'idcard', label: 'ID Card', icon: 'card-account-details' },
         ]}
-        style={{ margin: 15, marginBottom: 5 }} />
+        style={{ marginHorizontal: 12, marginTop: 12, marginBottom: 5 }} />
       {tab === 'broadcast' && renderBroadcast()}
       {tab === 'templates' && renderTemplates()}
       {tab === 'idcard' && renderIDCard()}

@@ -143,7 +143,7 @@ export default function WorkoutDietScreen({ navigation }) {
   );
 
   const renderDietTab = () => (
-    <ScrollView contentContainerStyle={{ padding: 15, paddingBottom: 80 }}>
+    <ScrollView contentContainerStyle={{ padding: 12, paddingBottom: 80 }}>
       {showAdd && tab === 'diet' && (
         <Card style={[styles.addCard, { backgroundColor: c.surface }]}>
           <Card.Content>
@@ -226,7 +226,7 @@ export default function WorkoutDietScreen({ navigation }) {
           { value: 'workout', label: 'Workout Plans', icon: 'dumbbell' },
           { value: 'diet', label: 'Diet Plans', icon: 'food-apple' },
         ]}
-        style={{ margin: 15, marginBottom: 5 }} />
+        style={{ margin: 12, marginBottom: 5 }} />
       {tab === 'workout' ? renderWorkoutTab() : renderDietTab()}
       <FAB icon="plus" style={[styles.fab, { backgroundColor: tab === 'workout' ? c.primary : '#4CAF50' }]}
         color="#fff" onPress={() => setShowAdd(true)} />

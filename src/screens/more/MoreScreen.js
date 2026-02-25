@@ -151,7 +151,7 @@ export default function MoreScreen({ navigation }) {
         ))}
 
         {/* Footer Actions */}
-        <Card style={[styles.menuCard, { backgroundColor: c.surface, marginHorizontal: 15 }]}>
+        <Card style={[styles.menuCard, { backgroundColor: c.surface, marginHorizontal: 12 }]}>
           <Card.Content style={{ padding: 0 }}>
             <TouchableOpacity style={styles.menuItem} onPress={shareApp}>
               <View style={[styles.menuIcon, { backgroundColor: '#4CAF5015' }]}>
@@ -176,14 +176,14 @@ export default function MoreScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  profileCard: { margin: 15, borderRadius: 15, elevation: 3 },
-  quickStats: { flexDirection: 'row', marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderColor: '#ffffff30', width: '100%', justifyContent: 'space-around' },
+  profileCard: { margin: 12, borderRadius: 15, elevation: 3 },
+  quickStats: { flexDirection: 'row', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: '#ffffff30', width: '100%', justifyContent: 'space-around' },
   qStat: { alignItems: 'center' },
   qStatDivider: { width: 1, backgroundColor: '#ffffff30', height: '100%' },
-  themeCard: { marginHorizontal: 15, marginBottom: 5, borderRadius: 10, elevation: 1 },
+  themeCard: { marginHorizontal: 12, marginBottom: 5, borderRadius: 10, elevation: 1 },
   row: { flexDirection: 'row', alignItems: 'center' },
-  secTitle: { fontSize: 12, fontWeight: '700', marginLeft: 20, marginTop: 15, marginBottom: 5, textTransform: 'uppercase' },
-  menuCard: { marginHorizontal: 15, marginBottom: 5, borderRadius: 10, elevation: 1, overflow: 'hidden' },
+  secTitle: { fontSize: 12, fontWeight: '700', marginLeft: 16, marginTop: 12, marginBottom: 5, textTransform: 'uppercase' },
+  menuCard: { marginHorizontal: 12, marginBottom: 5, borderRadius: 10, elevation: 1, overflow: 'hidden' },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   menuIcon: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });

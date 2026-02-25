@@ -146,13 +146,13 @@ export default function AttendanceScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  statsRow: { flexDirection: 'row', padding: 15, paddingBottom: 5 },
+  statsRow: { flexDirection: 'row', paddingHorizontal: 8, paddingTop: 12, paddingBottom: 4 },
   statCard: { flex: 1, marginHorizontal: 4, elevation: 2, borderRadius: 10 },
   statContent: { alignItems: 'center', paddingVertical: 8 },
   statVal: { fontSize: 22, fontWeight: 'bold', marginVertical: 2 },
-  tabs: { marginHorizontal: 15, marginBottom: 10 },
-  search: { marginHorizontal: 15, marginBottom: 10, elevation: 2, borderRadius: 10 },
-  memberCard: { marginHorizontal: 15, marginVertical: 3, elevation: 1, borderRadius: 10 },
+  tabs: { marginHorizontal: 12, marginBottom: 10 },
+  search: { marginHorizontal: 12, marginBottom: 10, elevation: 2, borderRadius: 10 },
+  memberCard: { marginHorizontal: 12, marginVertical: 3, elevation: 1, borderRadius: 10 },
   memberRow: { flexDirection: 'row', alignItems: 'center' },
   memberInfo: { flex: 1, marginLeft: 12 },
   memberName: { fontSize: 15, fontWeight: '600' },

@@ -313,12 +313,12 @@ function getRelativeTime(dateStr) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerBar: { padding: 15, paddingTop: 10, borderBottomLeftRadius: 15, borderBottomRightRadius: 15 },
+  headerBar: { padding: 12, paddingTop: 10, borderBottomLeftRadius: 15, borderBottomRightRadius: 15 },
   statRow: { flexDirection: 'row', justifyContent: 'space-around' },
   stat: { alignItems: 'center' },
   filterRow: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 10, flexWrap: 'wrap' },
   fChip: { marginRight: 6, marginBottom: 4, height: 30 },
-  card: { marginHorizontal: 15, marginVertical: 4, elevation: 1, borderRadius: 10 },
+  card: { marginHorizontal: 12, marginVertical: 4, elevation: 1, borderRadius: 10 },
   row: { flexDirection: 'row', alignItems: 'flex-start' },
   iconBox: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1, marginLeft: 10 },

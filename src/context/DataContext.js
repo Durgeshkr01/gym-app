@@ -631,6 +631,10 @@ export function DataProvider({ children }) {
     });
   }, []);
 
+  const deletePayment = useCallback(async (paymentId) => {
+    await remove(ref(db, `${P.PAYMENTS}/${paymentId}`));
+  }, []);
+
   const getPaymentStats = useCallback(() => {
     const todayPayments = payments.filter(p => isToday(p.date));
     const monthPayments = payments.filter(p => isThisMonth(p.date));
@@ -920,7 +924,7 @@ export function DataProvider({ children }) {
     // Attendance
     checkIn, checkOut, getTodayAttendance,
     // Payments
-    addPayment, collectDues, getPaymentStats,
+    addPayment, collectDues, deletePayment, getPaymentStats,
     // Enquiries
     addEnquiry, updateEnquiry, deleteEnquiry,
     // Notifications

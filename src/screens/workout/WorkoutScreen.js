@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E0E0E0',
   },
   categoryContainer: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 12,
     paddingVertical: 10,
   },
   categoryChip: {
@@ -184,19 +184,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginTop: 20,
     marginBottom: 10,
     color: '#333',
   },
   workoutCard: {
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginHorizontal: 12,
+    marginBottom: 12,
     elevation: 3,
   },
   workoutHeader: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: 12,
   },
   iconContainer: {
     width: 60,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF0E6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 12,
   },
   workoutInfo: {
     flex: 1,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 12,
   },
   metaText: {
     fontSize: 12,
@@ -238,17 +238,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF6B35',
   },
   libraryCard: {
-    marginHorizontal: 15,
+    marginHorizontal: 12,
     marginBottom: 20,
     elevation: 3,
   },
   libraryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 12,
   },
   libraryInfo: {
-    marginLeft: 15,
+    marginLeft: 12,
     flex: 1,
   },
   libraryTitle: {

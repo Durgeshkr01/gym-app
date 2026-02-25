@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Card, Text, Searchbar, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -7,8 +7,6 @@ import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { formatCurrency } from '../../utils/helpers';
 import InstallBanner from '../../components/web/InstallBanner';
-
-const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }) {
   const { theme } = useTheme();
@@ -53,7 +51,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.headerSub}>Gym Admin Dashboard</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.bellBtn}>
-              <MaterialCommunityIcons name="bell" size={28} color="#fff" />
+              <MaterialCommunityIcons name="bell" size={26} color="#fff" />
               {unreadCount > 0 && <Badge style={styles.badge}>{unreadCount}</Badge>}
             </TouchableOpacity>
           </View>
@@ -71,19 +69,21 @@ export default function HomeScreen({ navigation }) {
       {/* Quick Actions Grid */}
       <View style={styles.actionsGrid}>
         {quickActions.map((a, i) => (
-          <TouchableOpacity key={i} style={[styles.actionBtn, { backgroundColor: c.surface }]}
-            onPress={() => navigation.navigate(a.action)}>
-            <View style={[styles.actionIcon, { backgroundColor: a.color + '18' }]}>
-              <MaterialCommunityIcons name={a.icon} size={28} color={a.color} />
-            </View>
-            <Text style={[styles.actionLabel, { color: c.text }]}>{a.label}</Text>
-          </TouchableOpacity>
+          <View key={i} style={styles.actionBtnWrapper}>
+            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: c.surface }]}
+              onPress={() => navigation.navigate(a.action)}>
+              <View style={[styles.actionIcon, { backgroundColor: a.color + '18' }]}>
+                <MaterialCommunityIcons name={a.icon} size={26} color={a.color} />
+              </View>
+              <Text style={[styles.actionLabel, { color: c.text }]}>{a.label}</Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
 
       {/* Today's Summary */}
       <Text style={[styles.secTitle, { color: c.primary }]}>Today's Summary</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.hScroll}>
+      <View style={styles.statGrid}>
         {[
           { l: 'Check-Ins', v: stats.todayCheckIns || 0, i: 'login', co: '#2196F3' },
           { l: 'In Gym', v: stats.currentlyInGym || 0, i: 'account-group', co: '#4CAF50' },
@@ -91,17 +91,19 @@ export default function HomeScreen({ navigation }) {
           { l: 'New Admits', v: stats.todayAdmissions || 0, i: 'account-plus', co: '#9C27B0' },
           { l: 'Check-Outs', v: stats.todayCheckOuts || 0, i: 'logout', co: '#FF5252' },
         ].map((s, i) => (
-          <Card key={i} style={[styles.statCard, { backgroundColor: c.surface }]}>
-            <Card.Content style={styles.statContent}>
-              <View style={[styles.statIconBg, { backgroundColor: s.co + '18' }]}>
-                <MaterialCommunityIcons name={s.i} size={24} color={s.co} />
-              </View>
-              <Text style={[styles.statVal, { color: c.text }]}>{s.v}</Text>
-              <Text style={styles.statLbl}>{s.l}</Text>
-            </Card.Content>
-          </Card>
+          <View key={i} style={styles.statCardWrapper}>
+            <Card style={[styles.statCard, { backgroundColor: c.surface }]}>
+              <Card.Content style={styles.statContent}>
+                <View style={[styles.statIconBg, { backgroundColor: s.co + '18' }]}>
+                  <MaterialCommunityIcons name={s.i} size={22} color={s.co} />
+                </View>
+                <Text style={[styles.statVal, { color: c.text }]}>{s.v}</Text>
+                <Text style={styles.statLbl}>{s.l}</Text>
+              </Card.Content>
+            </Card>
+          </View>
         ))}
-      </ScrollView>
+      </View>
 
       {/* Members Overview */}
       <Text style={[styles.secTitle, { color: c.primary }]}>Members Overview</Text>
@@ -112,32 +114,38 @@ export default function HomeScreen({ navigation }) {
           { l: 'Expiring', v: stats.expiringSoon || 0, i: 'alert-circle', co: '#FF9800' },
           { l: 'Expired', v: stats.expiredMembers || 0, i: 'close-circle', co: '#FF5252' },
         ].map((s, i) => (
-          <TouchableOpacity key={i} style={[styles.overCard, { backgroundColor: c.surface }]}
-            onPress={() => navigation.navigate('Members')}>
-            <MaterialCommunityIcons name={s.i} size={36} color={s.co} />
-            <Text style={[styles.overNum, { color: c.text }]}>{s.v}</Text>
-            <Text style={[styles.overLbl, { color: c.muted }]}>{s.l}</Text>
-          </TouchableOpacity>
+          <View key={i} style={styles.overCardWrapper}>
+            <TouchableOpacity style={[styles.overCard, { backgroundColor: c.surface }]}
+              onPress={() => navigation.navigate('Members')}>
+              <MaterialCommunityIcons name={s.i} size={30} color={s.co} />
+              <Text style={[styles.overNum, { color: c.text }]}>{s.v}</Text>
+              <Text style={[styles.overLbl, { color: c.muted }]}>{s.l}</Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
 
       {/* Revenue */}
       <Text style={[styles.secTitle, { color: c.primary }]}>Revenue</Text>
       <View style={styles.revRow}>
-        <Card style={[styles.revCard, { backgroundColor: c.surface }]}>
-          <Card.Content style={styles.revInner}>
-            <MaterialCommunityIcons name="cash-multiple" size={32} color="#4CAF50" />
-            <Text style={[styles.revAmt, { color: '#4CAF50' }]}>{formatCurrency(stats.monthRevenue || 0)}</Text>
-            <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>This Month</Text>
-          </Card.Content>
-        </Card>
-        <Card style={[styles.revCard, { backgroundColor: c.surface }]}>
-          <Card.Content style={styles.revInner}>
-            <MaterialCommunityIcons name="cash-remove" size={32} color="#FF5252" />
-            <Text style={[styles.revAmt, { color: '#FF5252' }]}>{formatCurrency(stats.totalPending || 0)}</Text>
-            <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>Pending Dues</Text>
-          </Card.Content>
-        </Card>
+        <View style={styles.revCardWrapper}>
+          <Card style={[styles.revCard, { backgroundColor: c.surface }]}>
+            <Card.Content style={styles.revInner}>
+              <MaterialCommunityIcons name="cash-multiple" size={28} color="#4CAF50" />
+              <Text style={[styles.revAmt, { color: '#4CAF50' }]}>{formatCurrency(stats.monthRevenue || 0)}</Text>
+              <Text style={{ fontSize: 11, color: c.muted }}>This Month</Text>
+            </Card.Content>
+          </Card>
+        </View>
+        <View style={styles.revCardWrapper}>
+          <Card style={[styles.revCard, { backgroundColor: c.surface }]}>
+            <Card.Content style={styles.revInner}>
+              <MaterialCommunityIcons name="cash-remove" size={28} color="#FF5252" />
+              <Text style={[styles.revAmt, { color: '#FF5252' }]}>{formatCurrency(stats.totalPending || 0)}</Text>
+              <Text style={{ fontSize: 11, color: c.muted }}>Pending Dues</Text>
+            </Card.Content>
+          </Card>
+        </View>
       </View>
 
       {/* Quick Links */}
@@ -166,34 +174,38 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerCard: { margin: 15, marginBottom: 8, elevation: 4, borderRadius: 12 },
+  headerCard: { marginHorizontal: 12, marginTop: 12, marginBottom: 8, elevation: 4, borderRadius: 12 },
   headerRow: { flexDirection: 'row', alignItems: 'center' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-  headerSub: { fontSize: 14, color: 'rgba(255,255,255,0.85)', marginTop: 3 },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#fff' },
+  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
   bellBtn: { position: 'relative', padding: 8 },
   badge: { position: 'absolute', top: 2, right: 2, backgroundColor: '#FF5252', fontSize: 10 },
-  searchBar: { marginHorizontal: 15, marginBottom: 12, elevation: 2, borderRadius: 10 },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8, marginBottom: 5 },
-  actionBtn: { width: (width - 32) / 2, marginHorizontal: 4, marginVertical: 4, paddingVertical: 18, borderRadius: 12, alignItems: 'center', elevation: 2 },
-  actionIcon: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  actionLabel: { fontSize: 12.5, fontWeight: '600', textAlign: 'center', lineHeight: 15 },
-  secTitle: { fontSize: 17, fontWeight: 'bold', marginLeft: 15, marginTop: 12, marginBottom: 8 },
-  hScroll: { paddingLeft: 15, marginBottom: 5 },
-  statCard: { width: 140, marginRight: 12, elevation: 2, borderRadius: 10 },
+  searchBar: { marginHorizontal: 12, marginBottom: 12, elevation: 2, borderRadius: 10 },
+  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
+  actionBtnWrapper: { width: '33.33%', padding: 4 },
+  actionBtn: { paddingVertical: 14, borderRadius: 12, alignItems: 'center', elevation: 2 },
+  actionIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  actionLabel: { fontSize: 11, fontWeight: '600', textAlign: 'center', lineHeight: 14 },
+  secTitle: { fontSize: 16, fontWeight: 'bold', marginLeft: 12, marginTop: 15, marginBottom: 8 },
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
+  statCardWrapper: { width: '33.33%', padding: 4 },
+  statCard: { elevation: 2, borderRadius: 10 },
   statContent: { alignItems: 'center', paddingVertical: 8 },
-  statIconBg: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
-  statVal: { fontSize: 22, fontWeight: 'bold' },
-  statLbl: { fontSize: 11, color: '#999', marginTop: 3 },
-  overGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8, marginBottom: 5 },
-  overCard: { width: (width - 32) / 2, marginHorizontal: 4, marginVertical: 4, paddingVertical: 18, borderRadius: 12, alignItems: 'center', elevation: 2 },
-  overNum: { fontSize: 22, fontWeight: 'bold', marginTop: 6 },
-  overLbl: { fontSize: 11, marginTop: 3 },
-  revRow: { flexDirection: 'row', paddingHorizontal: 8, marginBottom: 5 },
-  revCard: { flex: 1, marginHorizontal: 4, marginVertical: 4, elevation: 2, borderRadius: 10 },
-  revInner: { alignItems: 'center', paddingVertical: 10 },
-  revAmt: { fontSize: 22, fontWeight: 'bold', marginTop: 6 },
-  linksCard: { margin: 15, elevation: 2, borderRadius: 12 },
-  linksTitle: { fontSize: 17, fontWeight: 'bold', marginBottom: 12 },
-  linkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 0.5, borderColor: '#E0E0E0' },
+  statIconBg: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
+  statVal: { fontSize: 18, fontWeight: 'bold' },
+  statLbl: { fontSize: 9, color: '#999', marginTop: 2 },
+  overGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8 },
+  overCardWrapper: { width: '50%', padding: 4 },
+  overCard: { paddingVertical: 14, borderRadius: 12, alignItems: 'center', elevation: 2 },
+  overNum: { fontSize: 20, fontWeight: 'bold', marginTop: 4 },
+  overLbl: { fontSize: 10, marginTop: 2 },
+  revRow: { flexDirection: 'row', paddingHorizontal: 8 },
+  revCardWrapper: { flex: 1, padding: 4 },
+  revCard: { elevation: 2, borderRadius: 10 },
+  revInner: { alignItems: 'center', paddingVertical: 8 },
+  revAmt: { fontSize: 20, fontWeight: 'bold', marginTop: 4 },
+  linksCard: { marginHorizontal: 12, marginTop: 8, marginBottom: 4, elevation: 2, borderRadius: 12 },
+  linksTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
+  linkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 0.5, borderColor: '#E0E0E0' },
   linkText: { flex: 1, fontSize: 15, marginLeft: 12 },
 });

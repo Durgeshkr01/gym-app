@@ -1,13 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Card, Text, SegmentedButtons, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { formatCurrencyFull, formatCurrency } from '../../utils/helpers';
-
-const { width } = Dimensions.get('window');
 
 export default function ReportsScreen({ navigation }) {
   const { theme } = useTheme();
@@ -101,10 +99,12 @@ export default function ReportsScreen({ navigation }) {
   };
 
   const StatCard = ({ icon, label, value, color: cardColor, prefix = '' }) => (
-    <View style={[styles.statBox, { backgroundColor: (cardColor || c.primary) + '12' }]}>
-      <MaterialCommunityIcons name={icon} size={22} color={cardColor || c.primary} />
-      <Text style={{ fontSize: 18, fontWeight: 'bold', color: cardColor || c.primary, marginTop: 4 }}>{prefix}{value}</Text>
-      <Text style={{ fontSize: 10, color: c.muted }}>{label}</Text>
+    <View style={styles.statBoxWrapper}>
+      <View style={[styles.statBox, { backgroundColor: (cardColor || c.primary) + '12' }]}>
+        <MaterialCommunityIcons name={icon} size={22} color={cardColor || c.primary} />
+        <Text style={{ fontSize: 18, fontWeight: 'bold', color: cardColor || c.primary, marginTop: 4 }}>{prefix}{value}</Text>
+        <Text style={{ fontSize: 10, color: c.muted }}>{label}</Text>
+      </View>
     </View>
   );
 
@@ -228,7 +228,7 @@ export default function ReportsScreen({ navigation }) {
           { value: 'revenue', label: 'Revenue', icon: 'cash' },
           { value: 'attendance', label: 'Attendance', icon: 'chart-bar' },
         ]}
-        style={{ margin: 15, marginBottom: 5 }} />
+        style={{ marginHorizontal: 12, marginTop: 12, marginBottom: 5 }} />
       {tab === 'overview' && renderOverview()}
       {tab === 'revenue' && renderRevenue()}
       {tab === 'attendance' && renderAttendance()}
@@ -239,8 +239,9 @@ export default function ReportsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   secTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
-  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 15 },
-  statBox: { width: (width - 50) / 2, padding: 12, borderRadius: 10, alignItems: 'center' },
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
+  statBoxWrapper: { width: '50%', padding: 4 },
+  statBox: { padding: 12, borderRadius: 10, alignItems: 'center' },
   card: { marginBottom: 12, borderRadius: 10, elevation: 1 },
   cardTitle: { fontSize: 14, fontWeight: '600', marginBottom: 12 },
   chartContainer: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 130, paddingTop: 10 },

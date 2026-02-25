@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert, Linking } from 'react-native';
-import { Text, Searchbar, FAB, Chip, Avatar, Card, Menu, IconButton } from 'react-native-paper';
+import { Text, Searchbar, FAB, Chip, Avatar, Card, Menu, IconButton, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
@@ -9,7 +9,7 @@ import { openWhatsApp, makeCall, searchMembers, getStatusColor, getStatusLabel, 
 
 export default function MembersScreen({ navigation, route }) {
   const { theme } = useTheme();
-  const { members, getMemberStatus } = useData();
+  const { members, getMemberStatus, deleteMember, checkIn, attendance } = useData();
   const [searchQuery, setSearchQuery] = useState(route?.params?.search || '');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [menuVisible, setMenuVisible] = useState(false);
@@ -39,40 +39,102 @@ export default function MembersScreen({ navigation, route }) {
     { id: 'dues', label: 'Dues' },
   ];
 
+  const getLastAttendance = (memberId) => {
+    const memberAtt = attendance
+      .filter(a => a.memberId === memberId && a.type === 'checkin')
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    return memberAtt.length > 0 ? formatDisplayDate(memberAtt[0].timestamp) : '-';
+  };
+
+  const handleDelete = (item) => {
+    Alert.alert('Delete Member', `Are you sure you want to delete ${item.name}?`, [
+      { text: 'Cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteMember(item.id) },
+    ]);
+  };
+
+  const handleCheckIn = async (item) => {
+    const result = await checkIn(item.id);
+    if (result) Alert.alert('Success', `${item.name} checked in!`);
+  };
+
   const renderMember = ({ item }) => {
     const status = getMemberStatus(item);
     const statusColor = getStatusColor(status);
+    const isExpired = status === 'expired';
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('MemberDetail', { memberId: item.id })}>
-        <Card style={[styles.memberCard, { backgroundColor: c.surface }]}>
-          <Card.Content style={styles.memberRow}>
-            <View style={[styles.avatarBorder, { borderColor: statusColor }]}>
-              <Avatar.Text size={50} label={item.name?.substring(0, 2).toUpperCase()} style={{ backgroundColor: statusColor + '30' }}
-                labelStyle={{ color: statusColor, fontWeight: 'bold' }} />
-            </View>
-            <View style={styles.memberInfo}>
-              <View style={styles.nameRow}>
-                <Text style={[styles.memberName, { color: c.text }]}>{item.name}</Text>
-                <Chip mode="flat" style={[styles.statusChip, { backgroundColor: statusColor + '20' }]}
-                  textStyle={{ fontSize: 10, color: statusColor }}>{getStatusLabel(status)}</Chip>
+        <Card style={[styles.memberCard, { backgroundColor: c.surface, borderTopWidth: 3, borderTopColor: statusColor }]}>
+          <Card.Content style={{ paddingVertical: 12 }}>
+            {/* Top row: Roll No + Status */}
+            <View style={styles.topRow}>
+              <View style={[styles.rollBadge, { borderColor: statusColor }]}>
+                <Text style={[styles.rollText, { color: statusColor }]}>{item.rollNo || '-'}</Text>
               </View>
-              <Text style={{ fontSize: 12, color: c.muted }}>Roll #{item.rollNo} • {item.phone}</Text>
-              <Text style={{ fontSize: 12, color: c.muted }}>{item.plan} • Exp: {formatDisplayDate(item.endDate)}</Text>
-              {(item.dueAmount || 0) > 0 && (
-                <Text style={{ fontSize: 12, color: '#FF5252', fontWeight: 'bold' }}>Due: ₹{item.dueAmount}</Text>
-              )}
+              <Chip mode="flat" style={[styles.statusBadge, { backgroundColor: statusColor + '18' }]}
+                textStyle={{ fontSize: 12, fontWeight: 'bold', color: statusColor }}>
+                {getStatusLabel(status)}
+              </Chip>
             </View>
-            <View style={styles.actionBtns}>
-              <TouchableOpacity onPress={() => openWhatsApp(item.phone)} style={styles.iconBtn}>
-                <MaterialCommunityIcons name="whatsapp" size={22} color="#25D366" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => makeCall(item.phone)} style={styles.iconBtn}>
-                <MaterialCommunityIcons name="phone" size={22} color="#2196F3" />
+
+            {/* Info Rows */}
+            <View style={styles.infoSection}>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: c.muted }]}>Name:</Text>
+                <Text style={[styles.infoValue, { color: c.text }]}>{item.name}</Text>
+              </View>
+              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: c.muted }]}>Membership:</Text>
+                <Text style={[styles.infoValue, { color: c.text }]}>{item.plan || '-'}</Text>
+              </View>
+              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: c.muted }]}>Expiry:</Text>
+                <Text style={[styles.infoValue, { color: isExpired ? '#E53935' : '#4CAF50', fontWeight: '600' }]}>
+                  {formatDisplayDate(item.endDate)}
+                </Text>
+              </View>
+              <Divider style={{ backgroundColor: c.muted + '20' }} />
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: c.muted }]}>Last Attendance:</Text>
+                <Text style={[styles.infoValue, { color: c.text }]}>{getLastAttendance(item.id)}</Text>
+              </View>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.btnGrid}>
+              <View style={styles.btnRow}>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#4CAF50' }]}
+                  onPress={() => handleCheckIn(item)}>
+                  <MaterialCommunityIcons name="login" size={18} color="#fff" />
+                  <Text style={styles.btnText}>Check In</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#2196F3' }]}
+                  onPress={() => navigation.navigate('MemberDetail', { memberId: item.id })}>
+                  <MaterialCommunityIcons name="information" size={18} color="#fff" />
+                  <Text style={styles.btnText}>Details</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.btnRow}>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FFC107' }]}
+                  onPress={() => navigation.navigate('AddMember', { memberId: item.id })}>
+                  <MaterialCommunityIcons name="square-edit-outline" size={18} color="#fff" />
+                  <Text style={styles.btnText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#F44336' }]}
+                  onPress={() => handleDelete(item)}>
+                  <MaterialCommunityIcons name="delete" size={18} color="#fff" />
+                  <Text style={styles.btnText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity style={[styles.actionBtnFull, { backgroundColor: '#9C27B0' }]}
+                onPress={() => navigation.navigate('MemberDetail', { memberId: item.id })}>
+                <MaterialCommunityIcons name="currency-inr" size={18} color="#fff" />
+                <Text style={styles.btnText}>Pay & Extend Membership</Text>
               </TouchableOpacity>
             </View>
           </Card.Content>
         </Card>
-      </TouchableOpacity>
     );
   };
 
@@ -123,18 +185,23 @@ export default function MembersScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  searchBar: { margin: 15, marginBottom: 10, elevation: 2, borderRadius: 10 },
-  filterRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 5, flexWrap: 'wrap' },
+  searchBar: { marginHorizontal: 12, marginTop: 12, marginBottom: 8, elevation: 2, borderRadius: 10 },
+  filterRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, marginBottom: 5, flexWrap: 'wrap' },
   filterChip: { marginRight: 6, marginBottom: 4, height: 32 },
-  memberCard: { marginHorizontal: 15, marginVertical: 4, elevation: 2, borderRadius: 10 },
-  memberRow: { flexDirection: 'row', alignItems: 'center' },
-  avatarBorder: { borderWidth: 2, borderRadius: 28, padding: 2 },
-  memberInfo: { flex: 1, marginLeft: 12 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
-  memberName: { fontSize: 16, fontWeight: 'bold', flex: 1 },
-  statusChip: { height: 22, marginLeft: 6 },
-  actionBtns: { alignItems: 'center' },
-  iconBtn: { padding: 6 },
+  memberCard: { marginHorizontal: 12, marginVertical: 6, elevation: 3, borderRadius: 12 },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  rollBadge: { borderWidth: 2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4 },
+  rollText: { fontSize: 14, fontWeight: 'bold' },
+  statusBadge: { height: 28 },
+  infoSection: { marginBottom: 12 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 },
+  infoLabel: { fontSize: 14, fontStyle: 'italic' },
+  infoValue: { fontSize: 15, fontWeight: '600' },
+  btnGrid: { marginTop: 4 },
+  btnRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 11, borderRadius: 8, gap: 6 },
+  actionBtnFull: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 8, gap: 6 },
+  btnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', paddingTop: 80 },
   emptyText: { fontSize: 16, marginTop: 10, marginBottom: 20 },
   addBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20 },
