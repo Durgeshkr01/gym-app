@@ -4,7 +4,8 @@ import { Card, Text, Button, Avatar, Chip, Divider, Menu, IconButton, TextInput,
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
-import { openWhatsApp, makeCall, sendSMS, getStatusColor, getStatusLabel, formatDisplayDate, calculateAge, formatCurrencyFull, fillTemplate } from '../../utils/helpers';
+import { openWhatsApp, makeCall, sendSMS, getStatusColor, getStatusLabel, formatDisplayDate, calculateAge, formatCurrencyFull, fillTemplate, generateBill } from '../../utils/helpers';
+import DateInput from '../../components/DateInput';
 
 export default function MemberDetailScreen({ navigation, route }) {
   const { theme } = useTheme();
@@ -74,7 +75,15 @@ export default function MemberDetailScreen({ navigation, route }) {
     setRenewMode('auto');
     setRenewStartDate('');
     setRenewEndDate('');
-    Alert.alert('Success', `${member.name}'s membership renewed!`);
+    const selectedPlan = plans.find(p => p.id === renewPlanId);
+    const paymentSummary = { plan: selectedPlan?.name || 'Plan', amount: parseFloat(renewAmount) || 0, mode: 'Cash', date: new Date().toISOString(), status: 'paid' };
+    Alert.alert('Membership Renewed! 🎉', `${member.name}'s membership renew ho gaya!`, [
+      { text: '📲 Send Bill on WhatsApp', onPress: () => {
+        const bill = generateBill(member, paymentSummary, settings?.gymName, settings?.gymPhone);
+        openWhatsApp(member.phone, bill);
+      }},
+      { text: 'OK', style: 'cancel' },
+    ]);
   };
 
   const sendWelcome = () => {
@@ -229,19 +238,15 @@ export default function MemberDetailScreen({ navigation, route }) {
 
             {renewMode === 'custom' && (
               <View style={{ backgroundColor: '#F1F8E9', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-                <Text style={{ fontSize: 12, color: '#558B2F', marginBottom: 6 }}>Format: DD/MM/YYYY</Text>
+                <Text style={{ fontSize: 12, color: '#558B2F', marginBottom: 6 }}>Format: DD/MM/YYYY (auto-formats as you type)</Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#555', marginBottom: 3 }}>Start Date *</Text>
-                    <TextInput value={renewStartDate} onChangeText={setRenewStartDate}
-                      mode="outlined" placeholder="01/03/2026" textColor="#333"
-                      keyboardType="number-pad" dense style={{ backgroundColor: '#fff' }} />
+                    <DateInput value={renewStartDate} onChangeText={setRenewStartDate}
+                      label="Start Date" style={{ backgroundColor: '#fff' }} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#555', marginBottom: 3 }}>End Date *</Text>
-                    <TextInput value={renewEndDate} onChangeText={setRenewEndDate}
-                      mode="outlined" placeholder="31/03/2026" textColor="#333"
-                      keyboardType="number-pad" dense style={{ backgroundColor: '#fff' }} />
+                    <DateInput value={renewEndDate} onChangeText={setRenewEndDate}
+                      label="End Date" style={{ backgroundColor: '#fff' }} />
                   </View>
                 </View>
               </View>

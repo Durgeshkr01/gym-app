@@ -25,8 +25,8 @@ export const sendSMS = (phone, message = '') => {
 export const shareApp = async () => {
   try {
     await Share.share({
-      message: 'Check out SG Fitness Evolution - Best Gym Management App! Download now.',
-      title: 'SG Fitness Evolution',
+      message: 'Check out SG Fitness 2.0 - Best Gym Management App! Download now.',
+      title: 'SG Fitness 2.0',
     });
   } catch (e) {}
 };
@@ -55,7 +55,7 @@ export const fillTemplate = (template, data) => {
     .replace(/{endDate}/g, _fmtDate(data.endDate || data.expiryDate) || '')
     .replace(/{due_amount}/g, data.dueAmount?.toString() || '0')
     .replace(/{amount}/g, data.dueAmount?.toString() || data.amount?.toString() || '0')
-    .replace(/{gym_name}/g, data.gymName || 'SG Fitness Evolution')
+    .replace(/{gym_name}/g, data.gymName || 'SG Fitness 2.0')
     .replace(/{gym_phone}/g, data.gymPhone || '');
 };
 
@@ -130,14 +130,58 @@ export const getStatusLabel = (status) => {
 export const searchMembers = (members, query) => {
   if (!query.trim()) return members;
   const q = query.toLowerCase().trim();
-  return members.filter(m =>
+  const filtered = members.filter(m =>
     m.name?.toLowerCase().includes(q) ||
     m.fatherName?.toLowerCase().includes(q) ||
     m.phone?.includes(q) ||
     m.rollNo?.toString().includes(q)
   );
+  // Sort: exact match first, then startsWith, then contains
+  const score = (m) => {
+    if (m.rollNo?.toString() === q) return 0;
+    if (m.name?.toLowerCase() === q) return 1;
+    if (m.rollNo?.toString().startsWith(q)) return 2;
+    if (m.name?.toLowerCase().startsWith(q)) return 3;
+    if (m.phone?.startsWith(q)) return 4;
+    return 5;
+  };
+  return filtered.sort((a, b) => score(a) - score(b));
 };
 
-// ============= VALIDATION =============
+// ============= BILL GENERATOR =============
+export const generateBill = (member, payment, gymName, gymPhone) => {
+  const fmtDate = (d) => {
+    if (!d) return '-';
+    try {
+      const dt = new Date(d.includes('T') ? d : d + 'T00:00:00');
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
+    } catch { return d; }
+  };
+  const gName = gymName || 'SG Fitness 2.0';
+  const date = fmtDate(payment?.date || new Date().toISOString());
+  return [
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+    `🏋️  ${gName}`,
+    gymPhone ? `📞 ${gymPhone}` : null,
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+    `📋 PAYMENT RECEIPT`,
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+    `👤 Name      : ${member?.name || ''}`,
+    `🔢 Roll No   : ${member?.rollNo || ''}`,
+    `📱 Mobile    : ${member?.phone || ''}`,
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+    `📦 Plan      : ${payment?.plan || member?.plan || '-'}`,
+    `💰 Amount    : ₹${payment?.amount || 0}`,
+    `💳 Mode      : ${payment?.mode || 'Cash'}`,
+    `📅 Date      : ${date}`,
+    `✅ Status    : ${(payment?.status || 'Paid').toUpperCase()}`,
+    member?.endDate ? `📆 Valid Till : ${fmtDate(member.endDate)}` : null,
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+    `🙏 Thank you for choosing`,
+    `   ${gName}!`,
+    `━━━━━━━━━━━━━━━━━━━━━━`,
+  ].filter(Boolean).join('\n');
+};
 export const validatePhone = (phone) => /^\d{10}$/.test(phone);
 export const validateEmail = (email) => !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

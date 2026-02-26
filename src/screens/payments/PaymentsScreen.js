@@ -5,11 +5,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
-import { formatCurrency, formatDisplayDate, formatTime } from '../../utils/helpers';
+import { formatCurrency, formatDisplayDate, formatTime, generateBill, openWhatsApp } from '../../utils/helpers';
 
 export default function PaymentsScreen({ navigation }) {
   const { theme } = useTheme();
-  const { payments, getPaymentStats, deletePayment } = useData();
+  const { payments, members, settings, getPaymentStats, deletePayment } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [stats, setStats] = useState({});
@@ -92,17 +92,33 @@ export default function PaymentsScreen({ navigation }) {
               </Chip>
             </View>
           </View>
-          {/* Delete Button - Full width */}
-          <Button
-            mode="contained"
-            icon="delete"
-            onPress={() => handleDeletePayment(item)}
-            buttonColor="#F44336"
-            textColor="#fff"
-            style={{ marginTop: 10, borderRadius: 8 }}
-            labelStyle={{ fontSize: 12, fontWeight: '700' }}>
-            Delete Payment
-          </Button>
+          {/* Action Buttons */}
+          <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
+            <Button
+              mode="contained"
+              icon="whatsapp"
+              onPress={() => {
+                const m = members.find(x => x.id === item.memberId);
+                const bill = generateBill(m, item, settings?.gymName, settings?.gymPhone);
+                openWhatsApp(m?.phone, bill);
+              }}
+              buttonColor="#25D366"
+              textColor="#fff"
+              style={{ flex: 1, borderRadius: 8 }}
+              labelStyle={{ fontSize: 12, fontWeight: '700' }}>
+              Send Bill
+            </Button>
+            <Button
+              mode="contained"
+              icon="delete"
+              onPress={() => handleDeletePayment(item)}
+              buttonColor="#F44336"
+              textColor="#fff"
+              style={{ flex: 1, borderRadius: 8 }}
+              labelStyle={{ fontSize: 12, fontWeight: '700' }}>
+              Delete
+            </Button>
+          </View>
         </Card.Content>
       </Card>
     );

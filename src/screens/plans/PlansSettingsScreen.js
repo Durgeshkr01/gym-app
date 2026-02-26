@@ -129,7 +129,7 @@ export default function PlansSettingsScreen({ navigation }) {
       <Card style={[styles.settingsCard, { backgroundColor: c.surface }]}>
         <Card.Content>
           <Text style={[styles.secTitle, { color: c.text }]}>Gym Details</Text>
-          <TextInput label="Gym Name" value={localSettings.gymName || 'SG Fitness Evolution'}
+          <TextInput label="Gym Name" value={localSettings.gymName || 'SG Fitness 2.0'}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymName: v }))}
             mode="outlined" style={styles.inp} />
           <TextInput label="Owner Name" value={localSettings.ownerName || ''}

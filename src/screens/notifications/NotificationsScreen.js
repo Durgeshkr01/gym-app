@@ -55,7 +55,7 @@ export default function NotificationsScreen({ navigation }) {
     endDate: member.endDate,
     expiryDate: member.endDate,
     dueAmount: member.dueAmount,
-    gymName: settings?.gymName || 'SG Fitness Evolution',
+    gymName: settings?.gymName || 'SG Fitness 2.0',
     gymPhone: settings?.gymPhone || '',
   });
 
@@ -63,7 +63,7 @@ export default function NotificationsScreen({ navigation }) {
   const getWhatsAppMsg = (type, member) => {
     const tpl = messageTemplates[type];
     const whatsappTpl = tpl?.whatsapp || tpl || '';
-    if (!whatsappTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness Evolution'} ki taraf se message.`;
+    if (!whatsappTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness 2.0'} ki taraf se message.`;
     return fillTemplate(whatsappTpl, _tplData(member));
   };
 
@@ -71,7 +71,7 @@ export default function NotificationsScreen({ navigation }) {
   const getSmsMsg = (type, member) => {
     const tpl = messageTemplates[type];
     const smsTpl = tpl?.sms || '';
-    if (!smsTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness Evolution'} ki taraf se message. Contact: ${settings?.gymPhone || ''}`;
+    if (!smsTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness 2.0'} ki taraf se message. Contact: ${settings?.gymPhone || ''}`;
     return fillTemplate(smsTpl, _tplData(member));
   };
 

@@ -84,7 +84,7 @@ export default function MoreScreen({ navigation }) {
           <Card.Content style={{ alignItems: 'center', paddingVertical: 20 }}>
             <Avatar.Icon size={64} icon="dumbbell" style={{ backgroundColor: '#ffffff30' }} color="#fff" />
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff', marginTop: 10 }}>
-              {settings.gymName || 'SG Fitness Evolution'}
+              {settings.gymName || 'SG Fitness 2.0'}
             </Text>
             <Text style={{ fontSize: 12, color: '#ffffffcc' }}>
               {settings.ownerName ? `Owner: ${settings.ownerName}` : 'Gym Admin App'}
@@ -167,7 +167,7 @@ export default function MoreScreen({ navigation }) {
         </Card>
 
         <Text style={{ textAlign: 'center', color: c.muted, fontSize: 11, marginTop: 20 }}>
-          SG Fitness Evolution v1.0.0{'\n'}Made with ❤️ for Gym Owners
+          SG Fitness 2.0 v2.0.0{'\n'}Made with ❤️ for Gym Owners
         </Text>
       </ScrollView>
     </View>

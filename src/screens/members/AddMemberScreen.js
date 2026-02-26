@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { openWhatsApp, fillTemplate } from '../../utils/helpers';
+import DateInput from '../../components/DateInput';
 
 export default function AddMemberScreen({ navigation, route }) {
   const { theme } = useTheme();
@@ -203,13 +204,13 @@ export default function AddMemberScreen({ navigation, route }) {
         <View style={styles.row}>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Date of Birth</Text>
-            <TextInput value={form.dob} onChangeText={v => updateField('dob', v)}
-              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} textColor={c.text} dense />
+            <DateInput value={form.dob} onChangeText={v => updateField('dob', v)}
+              label="Date of Birth" style={styles.input} />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Join Date *</Text>
-            <TextInput value={form.joinDate} onChangeText={v => updateField('joinDate', v)}
-              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} textColor={c.text} dense />
+            <DateInput value={form.joinDate} onChangeText={v => updateField('joinDate', v)}
+              label="Join Date" style={styles.input} />
           </View>
         </View>
 

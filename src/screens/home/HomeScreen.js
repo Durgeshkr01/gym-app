@@ -47,7 +47,7 @@ export default function HomeScreen({ navigation }) {
         <Card.Content>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.headerTitle}>SG Fitness Evolution</Text>
+              <Text style={styles.headerTitle}>SG Fitness 2.0</Text>
               <Text style={styles.headerSub}>Gym Admin Dashboard</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.bellBtn}>
