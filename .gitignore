@@ -71,3 +71,8 @@ temp/
 firebase_backup.json
 DataContext_AsyncStorage_backup.js
 DataContext_Firebase.js
+
+# Excel import files
+*.xlsx
+*.xls
+import_*.py
