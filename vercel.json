@@ -2,11 +2,6 @@
   "buildCommand": "npx expo export --platform web && node postexport.js",
   "outputDirectory": "dist",
   "framework": null,
-  "build": {
-    "env": {
-      "NODE_VERSION": "18"
-    }
-  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
