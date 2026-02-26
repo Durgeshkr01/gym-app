@@ -506,84 +506,6 @@ export function DataProvider({ children }) {
     await remove(ref(db, `${P.MEMBERS}/${memberId}`));
   }, []);
 
-  // Import members from Excel (parsed rows array)
-  const importMembers = useCallback(async (rows) => {
-    const existing = membersR.current;
-    const existingPhones = new Set(existing.map(m => (m.phone || '').replace(/\D/g, '').slice(-10)));
-    const existingRolls = new Set(existing.map(m => String(m.rollNo || '')).filter(Boolean));
-    let maxRoll = existing.reduce((mx, m) => Math.max(mx, parseInt(m.rollNo) || 0), 0);
-
-    const updates = {};
-    let added = 0;
-    let skipped = 0;
-
-    for (const row of rows) {
-      const phone = (row.phone || '').replace(/\D/g, '').slice(-10);
-      // Skip if same phone already exists
-      if (phone && existingPhones.has(phone)) { skipped++; continue; }
-
-      maxRoll++;
-      const newRef = push(ref(db, P.MEMBERS));
-      const id = newRef.key;
-
-      // Determine status from endDate
-      let status = row.status || 'active';
-      if (row.endDate) {
-        const today = new Date();
-        const exp = new Date(row.endDate + 'T00:00:00');
-        const diff = Math.floor((exp - today) / 86400000);
-        if (diff < 0) status = 'expired';
-        else if (diff <= 7) status = 'expiring_soon';
-        else status = 'active';
-      }
-
-      const member = {
-        id,
-        rollNo: maxRoll,
-        name: row.name || '',
-        fatherName: row.fatherName || '',
-        phone: phone || row.phone || '',
-        altPhone: '',
-        email: '',
-        dob: row.dob || '',
-        age: '',
-        gender: row.gender || 'Male',
-        height: '',
-        weight: '',
-        address: row.address || '',
-        bloodGroup: '',
-        photo: null,
-        plan: row.plan || '',
-        planId: '',
-        planAmount: 0,
-        admissionFee: 0,
-        discount: 0,
-        paymentMode: 'Cash',
-        totalAmount: parseFloat(row.totalAmount) || (parseFloat(row.paidAmount) || 0) + (parseFloat(row.dueAmount) || 0),
-        paidAmount: parseFloat(row.paidAmount) || 0,
-        dueAmount: parseFloat(row.dueAmount) || 0,
-        startDate: row.startDate || '',
-        endDate: row.endDate || '',
-        status,
-        notes: '',
-        createdAt: new Date().toISOString(),
-        importedAt: new Date().toISOString(),
-      };
-
-      updates[`${P.MEMBERS}/${id}`] = member;
-      if (phone) existingPhones.add(phone);
-      added++;
-    }
-
-    // Update roll counter
-    updates[P.ROLL_COUNTER] = maxRoll + 1;
-
-    if (Object.keys(updates).length > 1) {
-      await update(ref(db), updates);
-    }
-    return { added, skipped };
-  }, []);
-
   const renewMember = useCallback(async (memberId, planId, paidAmount, discount = 0) => {
     const plan = plansR.current.find(p => p.id === planId);
     if (!plan) return;
@@ -1018,7 +940,7 @@ export function DataProvider({ children }) {
     members, attendance, payments, enquiries, notifications, plans, settings,
     workoutPlans, dietPlans, messageTemplates, rollCounter, loading,
     // Member functions
-    addMember, updateMember, deleteMember, importMembers, renewMember, getMemberStatus,
+    addMember, updateMember, deleteMember, renewMember, getMemberStatus,
     // Attendance
     checkIn, checkOut, getTodayAttendance,
     // Payments

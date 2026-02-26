@@ -2,9 +2,6 @@
   "name": "sg-fitness-evolution",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
-  "engines": {
-    "node": "20.x"
-  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -21,11 +18,8 @@
     "@reduxjs/toolkit": "^1.9.5",
     "date-fns": "^2.30.0",
     "expo": "~49.0.0",
-    "expo-document-picker": "^55.0.8",
-    "expo-file-system": "^55.0.9",
     "expo-image-picker": "~14.3.2",
     "expo-notifications": "~0.20.1",
-    "expo-sharing": "^55.0.10",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "firebase": "^10.3.1",
@@ -42,8 +36,7 @@
     "react-native-svg": "13.9.0",
     "react-native-web": "~0.19.6",
     "react-navigation": "^5.0.0",
-    "react-redux": "^8.1.2",
-    "xlsx": "^0.18.5"
+    "react-redux": "^8.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

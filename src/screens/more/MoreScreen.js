@@ -68,8 +68,6 @@ export default function MoreScreen({ navigation }) {
     {
       section: 'Data & Backup',
       items: [
-        { icon: 'file-import', label: 'Import / Export Excel', desc: 'Excel se members import karein ya export karein',
-          color: '#009688', screen: 'ImportExport' },
         { icon: 'cloud-upload', label: 'Backup Data', desc: 'Create backup of all gym data',
           color: '#4CAF50', action: handleBackup },
         { icon: 'cloud-download', label: 'Restore Data', desc: 'Restore from last backup',
