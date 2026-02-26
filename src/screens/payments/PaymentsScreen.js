@@ -38,7 +38,8 @@ export default function PaymentsScreen({ navigation }) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(p => p.memberName?.toLowerCase().includes(q));
     }
-    return filtered;
+    // Latest payment first
+    return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
   const handleDeletePayment = (item) => {
