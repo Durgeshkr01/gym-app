@@ -23,6 +23,7 @@ import WorkoutDietScreen from '../screens/workout/WorkoutDietScreen';
 import PlansSettingsScreen from '../screens/plans/PlansSettingsScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import ReportsScreen from '../screens/reports/ReportsScreen';
+import ImportExportScreen from '../screens/more/ImportExportScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,6 +84,7 @@ export default function AppNavigator() {
       <Stack.Screen name="PlansSettings" component={PlansSettingsScreen} options={{ title: 'Plans & Settings', ...headerStyle }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications', ...headerStyle }} />
       <Stack.Screen name="Reports" component={ReportsScreen} options={{ title: 'Reports & Analytics', ...headerStyle }} />
+      <Stack.Screen name="ImportExport" component={ImportExportScreen} options={{ title: 'Import / Export Excel', ...headerStyle }} />
     </Stack.Navigator>
   );
 }
