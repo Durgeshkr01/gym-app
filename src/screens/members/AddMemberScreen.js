@@ -162,12 +162,12 @@ export default function AddMemberScreen({ navigation, route }) {
             <Text style={[styles.label, { color: c.text }]}>Roll Number *</Text>
             <TextInput value={form.rollNo} onChangeText={v => updateField('rollNo', v)}
               mode="outlined" keyboardType="number-pad" placeholder="Enter Roll Number"
-              style={styles.input} dense />
+              style={styles.input} textColor={c.text} dense />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Full Name *</Text>
             <TextInput value={form.name} onChangeText={v => updateField('name', v)}
-              mode="outlined" placeholder="" style={styles.input} dense />
+              mode="outlined" placeholder="" style={styles.input} textColor={c.text} dense />
           </View>
         </View>
 
@@ -176,12 +176,12 @@ export default function AddMemberScreen({ navigation, route }) {
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Father's Name</Text>
             <TextInput value={form.fatherName} onChangeText={v => updateField('fatherName', v)}
-              mode="outlined" style={styles.input} dense />
+              mode="outlined" style={styles.input} textColor={c.text} dense />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Mobile Number *</Text>
             <TextInput value={form.phone} onChangeText={v => updateField('phone', v)}
-              mode="outlined" keyboardType="phone-pad" maxLength={10} style={styles.input} dense />
+              mode="outlined" keyboardType="phone-pad" maxLength={10} style={styles.input} textColor={c.text} dense />
           </View>
         </View>
 
@@ -190,12 +190,12 @@ export default function AddMemberScreen({ navigation, route }) {
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Age</Text>
             <TextInput value={form.age} onChangeText={v => updateField('age', v)}
-              mode="outlined" keyboardType="number-pad" style={styles.input} dense />
+              mode="outlined" keyboardType="number-pad" style={styles.input} textColor={c.text} dense />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Height (cm)</Text>
             <TextInput value={form.height} onChangeText={v => updateField('height', v)}
-              mode="outlined" keyboardType="number-pad" style={styles.input} dense />
+              mode="outlined" keyboardType="number-pad" style={styles.input} textColor={c.text} dense />
           </View>
         </View>
 
@@ -204,12 +204,12 @@ export default function AddMemberScreen({ navigation, route }) {
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Date of Birth</Text>
             <TextInput value={form.dob} onChangeText={v => updateField('dob', v)}
-              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} dense />
+              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} textColor={c.text} dense />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>Join Date *</Text>
             <TextInput value={form.joinDate} onChangeText={v => updateField('joinDate', v)}
-              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} dense />
+              mode="outlined" placeholder="DD/MM/YYYY" style={styles.input} textColor={c.text} dense />
           </View>
         </View>
 
@@ -217,7 +217,7 @@ export default function AddMemberScreen({ navigation, route }) {
         <Text style={[styles.label, { color: c.text }]}>Select Plan *</Text>
         <TouchableOpacity onPress={() => setPlanMenuVisible(true)}>
           <TextInput value={form.plan ? `${form.plan} - ₹${form.planAmount}` : '-- Select a Plan --'}
-            mode="outlined" style={styles.input} editable={false} pointerEvents="none"
+            mode="outlined" style={styles.input} textColor={c.text} editable={false} pointerEvents="none"
             right={<TextInput.Icon icon="chevron-down" />} dense />
         </TouchableOpacity>
         <Portal>
@@ -246,12 +246,12 @@ export default function AddMemberScreen({ navigation, route }) {
             <Text style={[styles.label, { color: c.text }]}>₹ Amount Paid (₹)</Text>
             <TextInput value={form.paidAmount} onChangeText={v => updateField('paidAmount', v)}
               mode="outlined" keyboardType="number-pad" placeholder="Enter amount paid"
-              style={styles.input} dense />
+              style={styles.input} textColor={c.text} dense />
           </View>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>💳 Payment Mode</Text>
             <TouchableOpacity onPress={() => setPayModeMenuVisible(true)}>
-              <TextInput value={form.paymentMode} mode="outlined" style={styles.input} editable={false} pointerEvents="none"
+              <TextInput value={form.paymentMode} mode="outlined" style={styles.input} textColor={c.text} editable={false} pointerEvents="none"
                 right={<TextInput.Icon icon="chevron-down" />} dense />
             </TouchableOpacity>
             <Portal>
@@ -294,7 +294,7 @@ export default function AddMemberScreen({ navigation, route }) {
             {form.durationMode === 'custom' && (
               <TextInput value={form.customDays} onChangeText={v => updateField('customDays', v)}
                 mode="outlined" keyboardType="number-pad" placeholder="Enter days"
-                style={[styles.input, { marginLeft: 40 }]} dense />
+                style={[styles.input, { marginLeft: 40 }]} textColor={c.text} dense />
             )}
             <TouchableOpacity style={styles.radioRow} onPress={() => updateField('durationMode', 'specific')}>
               <RadioButton value="specific" status={form.durationMode === 'specific' ? 'checked' : 'unchecked'}
@@ -304,7 +304,7 @@ export default function AddMemberScreen({ navigation, route }) {
             {form.durationMode === 'specific' && (
               <TextInput value={form.customEndDate} onChangeText={v => updateField('customEndDate', v)}
                 mode="outlined" placeholder="DD/MM/YYYY"
-                style={[styles.input, { marginLeft: 40 }]} dense />
+                style={[styles.input, { marginLeft: 40 }]} textColor={c.text} dense />
             )}
           </Card.Content>
         </Card>
