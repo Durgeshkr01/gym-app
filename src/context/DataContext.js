@@ -506,14 +506,14 @@ export function DataProvider({ children }) {
     await remove(ref(db, `${P.MEMBERS}/${memberId}`));
   }, []);
 
-  const renewMember = useCallback(async (memberId, planId, paidAmount, discount = 0) => {
+  const renewMember = useCallback(async (memberId, planId, paidAmount, discount = 0, customStartDate = null, customEndDate = null) => {
     const plan = plansR.current.find(p => p.id === planId);
     if (!plan) return;
     const member = membersR.current.find(m => m.id === memberId);
     if (!member) return;
 
-    const startDate = formatDate(new Date());
-    const endDate = addDays(startDate, plan.duration);
+    const startDate = customStartDate || formatDate(new Date());
+    const endDate = customEndDate || addDays(startDate, plan.duration);
     const totalAmount = plan.price - discount;
     const paid = parseFloat(paidAmount) || 0;
     const due = totalAmount - paid;

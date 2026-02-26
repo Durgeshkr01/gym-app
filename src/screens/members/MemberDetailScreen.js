@@ -19,6 +19,9 @@ export default function MemberDetailScreen({ navigation, route }) {
   const [renewPlanId, setRenewPlanId] = useState('');
   const [renewAmount, setRenewAmount] = useState('');
   const [renewMenuVisible, setRenewMenuVisible] = useState(false);
+  const [renewMode, setRenewMode] = useState('auto'); // 'auto' | 'custom'
+  const [renewStartDate, setRenewStartDate] = useState('');
+  const [renewEndDate, setRenewEndDate] = useState('');
 
   if (!member) {
     return (
@@ -50,9 +53,27 @@ export default function MemberDetailScreen({ navigation, route }) {
 
   const handleRenew = async () => {
     if (!renewPlanId) { Alert.alert('Error', 'Select a plan'); return; }
-    const amt = parseFloat(renewAmount) || 0;
-    await renewMember(member.id, renewPlanId, amt);
+    if (renewMode === 'custom') {
+      if (!renewStartDate || !renewEndDate) { Alert.alert('Error', 'Start aur End date dono bharein (DD/MM/YYYY)'); return; }
+      // convert DD/MM/YYYY to YYYY-MM-DD
+      const toISO = (dmy) => {
+        const p = dmy.trim().split('/');
+        if (p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+        return dmy;
+      };
+      const start = toISO(renewStartDate);
+      const end = toISO(renewEndDate);
+      if (new Date(end) <= new Date(start)) { Alert.alert('Error', 'End date, Start date se baad honi chahiye'); return; }
+      const amt = parseFloat(renewAmount) || 0;
+      await renewMember(member.id, renewPlanId, amt, 0, start, end);
+    } else {
+      const amt = parseFloat(renewAmount) || 0;
+      await renewMember(member.id, renewPlanId, amt);
+    }
     setShowRenew(false);
+    setRenewMode('auto');
+    setRenewStartDate('');
+    setRenewEndDate('');
     Alert.alert('Success', `${member.name}'s membership renewed!`);
   };
 
@@ -194,11 +215,43 @@ export default function MemberDetailScreen({ navigation, route }) {
                 </Dialog.Actions>
               </Dialog>
             </Portal>
+
+            {/* Duration Mode */}
+            <Text style={{ fontWeight: 'bold', color: '#333', marginBottom: 6 }}>Membership Duration</Text>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }} onPress={() => setRenewMode('auto')}>
+              <RadioButton value="auto" status={renewMode === 'auto' ? 'checked' : 'unchecked'} onPress={() => setRenewMode('auto')} color="#4CAF50" />
+              <Text style={{ color: '#333' }}>Auto — Aaj se plan ke hisaab se ({plans.find(p => p.id === renewPlanId)?.duration || '--'} din)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }} onPress={() => setRenewMode('custom')}>
+              <RadioButton value="custom" status={renewMode === 'custom' ? 'checked' : 'unchecked'} onPress={() => setRenewMode('custom')} color="#4CAF50" />
+              <Text style={{ color: '#333' }}>Custom Date — Khud date choose karo</Text>
+            </TouchableOpacity>
+
+            {renewMode === 'custom' && (
+              <View style={{ backgroundColor: '#F1F8E9', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                <Text style={{ fontSize: 12, color: '#558B2F', marginBottom: 6 }}>Format: DD/MM/YYYY</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, color: '#555', marginBottom: 3 }}>Start Date *</Text>
+                    <TextInput value={renewStartDate} onChangeText={setRenewStartDate}
+                      mode="outlined" placeholder="01/03/2026" textColor="#333"
+                      keyboardType="number-pad" dense style={{ backgroundColor: '#fff' }} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, color: '#555', marginBottom: 3 }}>End Date *</Text>
+                    <TextInput value={renewEndDate} onChangeText={setRenewEndDate}
+                      mode="outlined" placeholder="31/03/2026" textColor="#333"
+                      keyboardType="number-pad" dense style={{ backgroundColor: '#fff' }} />
+                  </View>
+                </View>
+              </View>
+            )}
+
             <TextInput label="Paid Amount" value={renewAmount} onChangeText={setRenewAmount}
-              mode="outlined" keyboardType="numeric" style={{ marginBottom: 10 }} />
+              mode="outlined" keyboardType="numeric" textColor="#333" style={{ marginBottom: 10 }} />
             <View style={{ flexDirection: 'row' }}>
               <Button mode="contained" onPress={handleRenew} style={{ flex: 1, marginRight: 5, backgroundColor: '#4CAF50' }}>Renew</Button>
-              <Button mode="outlined" onPress={() => setShowRenew(false)} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
+              <Button mode="outlined" onPress={() => { setShowRenew(false); setRenewMode('auto'); setRenewStartDate(''); setRenewEndDate(''); }} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
             </View>
           </Card.Content>
         </Card>
