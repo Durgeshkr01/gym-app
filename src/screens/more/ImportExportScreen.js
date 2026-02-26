@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { Card, Text, Button, Chip, DataTable, ProgressBar } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator, Platform } from 'react-native';
+import { Card, Text, Button, Chip, ProgressBar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import XLSX from 'xlsx';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
+
+// Native modules — only available on mobile
+const DocumentPicker = Platform.OS !== 'web' ? require('expo-document-picker') : null;
+const FileSystem = Platform.OS !== 'web' ? require('expo-file-system') : null;
+const Sharing = Platform.OS !== 'web' ? require('expo-sharing') : null;
 
 export default function ImportExportScreen() {
   const { theme } = useTheme();
@@ -68,58 +70,82 @@ export default function ImportExportScreen() {
   // ── IMPORT ────────────────────────────────────────────────────────────────
   const handlePickFile = async () => {
     try {
+      if (Platform.OS === 'web') {
+        // Web: use HTML file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx,.xls';
+        input.onchange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          setImporting(true);
+          setPreview(null);
+          setImportDone(null);
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            try {
+              const data = new Uint8Array(ev.target.result);
+              const workbook = XLSX.read(data, { type: 'array', cellDates: false });
+              await processWorkbook(workbook);
+            } catch (err) {
+              Alert.alert('Error', 'File read nahi hua: ' + err.message);
+            }
+            setImporting(false);
+          };
+          reader.readAsArrayBuffer(file);
+        };
+        input.click();
+        return;
+      }
+
+      // Mobile
       const result = await DocumentPicker.getDocumentAsync({
         type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                'application/vnd.ms-excel', '*/*'],
         copyToCacheDirectory: true,
       });
-
       if (result.canceled) return;
       const file = result.assets[0];
-
       setImporting(true);
       setPreview(null);
       setImportDone(null);
-
       const base64 = await FileSystem.readAsStringAsync(file.uri, { encoding: FileSystem.EncodingType.Base64 });
       const workbook = XLSX.read(base64, { type: 'base64', cellDates: false });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-      if (!jsonData.length) {
-        Alert.alert('Error', 'Excel file mein koi data nahi mila!');
-        setImporting(false);
-        return;
-      }
-
-      const headers = Object.keys(jsonData[0]);
-      // Auto-detect columns
-      const colMap = {
-        rollNo:     detectCol(headers, 'serial', 's.no', 'roll', 'sr', 'id'),
-        name:       detectCol(headers, 'name', 'full name', 'member name', 'naam'),
-        fatherName: detectCol(headers, 'father', 'parent'),
-        phone:      detectCol(headers, 'mobile', 'phone', 'contact', 'number'),
-        plan:       detectCol(headers, 'plan', 'membership', 'package'),
-        startDate:  detectCol(headers, 'join', 'start', 'from', 'joining'),
-        endDate:    detectCol(headers, 'expiry', 'expire', 'end', 'valid', 'due date'),
-        dueAmount:  detectCol(headers, 'due', 'pending', 'balance', 'remaining'),
-        status:     detectCol(headers, 'status'),
-        dob:        detectCol(headers, 'dob', 'birth', 'birthday'),
-        address:    detectCol(headers, 'address', 'addr'),
-        gender:     detectCol(headers, 'gender', 'sex'),
-      };
-
-      const mapped = jsonData.map((row, i) => ({ ...mapRow(row, colMap), _row: i + 2 }));
-      const valid = mapped.filter(r => r.name && r.name.length > 1);
-      const errors = mapped.filter(r => !r.name || r.name.length <= 1);
-
-      setPreview({ rows: valid, errors, total: jsonData.length, colMap, headers });
+      await processWorkbook(workbook);
       setImporting(false);
     } catch (e) {
       setImporting(false);
       Alert.alert('Error', 'File read nahi hua: ' + e.message);
     }
+  };
+
+  const processWorkbook = async (workbook) => {
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    if (!jsonData.length) {
+      Alert.alert('Error', 'Excel file mein koi data nahi mila!');
+      return;
+    }
+    const headers = Object.keys(jsonData[0]);
+    const colMap = {
+      rollNo:     detectCol(headers, 'serial', 's.no', 'roll', 'sr', 'id'),
+      name:       detectCol(headers, 'name', 'full name', 'member name', 'naam'),
+      fatherName: detectCol(headers, 'father', 'parent'),
+      phone:      detectCol(headers, 'mobile', 'phone', 'contact', 'number'),
+      plan:       detectCol(headers, 'plan', 'membership', 'package'),
+      startDate:  detectCol(headers, 'join', 'start', 'from', 'joining'),
+      endDate:    detectCol(headers, 'expiry', 'expire', 'end', 'valid', 'due date'),
+      dueAmount:  detectCol(headers, 'due', 'pending', 'balance', 'remaining'),
+      status:     detectCol(headers, 'status'),
+      dob:        detectCol(headers, 'dob', 'birth', 'birthday'),
+      address:    detectCol(headers, 'address', 'addr'),
+      gender:     detectCol(headers, 'gender', 'sex'),
+    };
+    const mapped = jsonData.map((row, i) => ({ ...mapRow(row, colMap), _row: i + 2 }));
+    const valid = mapped.filter(r => r.name && r.name.length > 1);
+    const errors = mapped.filter(r => !r.name || r.name.length <= 1);
+    setPreview({ rows: valid, errors, total: jsonData.length, colMap, headers });
   };
 
   const handleConfirmImport = async () => {
@@ -161,28 +187,39 @@ export default function ImportExportScreen() {
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Members');
-
-      // Set column widths
       ws['!cols'] = [
         { wch: 5 }, { wch: 8 }, { wch: 22 }, { wch: 20 }, { wch: 14 },
         { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
         { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 22 }, { wch: 8 },
       ];
 
-      const base64 = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
       const date = new Date().toISOString().slice(0, 10);
-      const fileUri = FileSystem.cacheDirectory + `Gym_Members_${date}.xlsx`;
-      await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+      const fileName = `Gym_Members_${date}.xlsx`;
 
-      const canShare = await Sharing.isAvailableAsync();
-      if (canShare) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          dialogTitle: 'Gym Members Export',
-          UTI: 'com.microsoft.excel.xlsx',
-        });
+      if (Platform.OS === 'web') {
+        // Web: trigger browser download
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
       } else {
-        Alert.alert('Saved', `File saved at:\n${fileUri}`);
+        // Mobile: save and share
+        const base64 = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
+        const fileUri = FileSystem.cacheDirectory + fileName;
+        await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            dialogTitle: 'Gym Members Export',
+          });
+        } else {
+          Alert.alert('Saved', `File saved:\n${fileUri}`);
+        }
       }
     } catch (e) {
       Alert.alert('Error', 'Export failed: ' + e.message);
