@@ -32,6 +32,17 @@ export const shareApp = async () => {
 };
 
 // ============= MESSAGE TEMPLATE HELPERS =============
+const _fmtDate = (d) => {
+  if (!d) return '';
+  try {
+    const clean = d.includes('T') ? d : d + 'T00:00:00';
+    const dt = new Date(clean);
+    if (isNaN(dt.getTime())) return d;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
+  } catch { return d; }
+};
+
 export const fillTemplate = (template, data) => {
   if (!template) return '';
   return template
@@ -39,9 +50,9 @@ export const fillTemplate = (template, data) => {
     .replace(/{phone}/g, data.phone || '')
     .replace(/{plan}/g, data.plan || '')
     .replace(/{rollNo}/g, data.rollNo?.toString() || '')
-    .replace(/{start_date}/g, data.startDate || '')
-    .replace(/{expiry_date}/g, data.endDate || data.expiryDate || '')
-    .replace(/{endDate}/g, data.endDate || data.expiryDate || '')
+    .replace(/{start_date}/g, _fmtDate(data.startDate) || '')
+    .replace(/{expiry_date}/g, _fmtDate(data.endDate || data.expiryDate) || '')
+    .replace(/{endDate}/g, _fmtDate(data.endDate || data.expiryDate) || '')
     .replace(/{due_amount}/g, data.dueAmount?.toString() || '0')
     .replace(/{amount}/g, data.dueAmount?.toString() || data.amount?.toString() || '0')
     .replace(/{gym_name}/g, data.gymName || 'SG Fitness Evolution')

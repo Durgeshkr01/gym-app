@@ -41,36 +41,36 @@ const DEFAULT_SETTINGS = {
 
 const DEFAULT_TEMPLATES = {
   birthday: {
-    whatsapp: 'Happy Birthday {name}! 🎉🎂 {gym_name} wishes you a wonderful day! Stay fit, stay healthy! 💪',
-    sms: 'Happy Birthday {name}! {gym_name} wishes you a great day!',
+    whatsapp: '🎂 *Happy Birthday {name} Ji!* 🎉\n\n{gym_name} parivar ki taraf se aapko janamdin ki bahut bahut hardik shubhkamnaayein! 🎊\n\n💪 Aap hamesha aise hi fit, healthy aur khush rahein!\nAapki fitness journey ka safar aur bhi behtareen ho — yahi dua hai humari! 🙏\n\n❤️ *{gym_name} Family* 🏋️',
+    sms: 'Happy Birthday {name} Ji! 🎂 {gym_name} family ki taraf se aapko dil se shubhkamnaayein! Fit & healthy rahein! 💪 - {gym_name}',
   },
   expiry: {
-    whatsapp: 'Dear {name}, your gym membership at {gym_name} is expiring on {expiry_date}. Please renew to continue your fitness journey! 💪\n\nPlan: {plan}\nContact: {gym_phone}',
-    sms: 'Dear {name}, your membership expires on {expiry_date}. Please renew. Contact: {gym_phone}',
+    whatsapp: '⚠️ *Membership Renewal Reminder*\n\nNamaste *{name} Ji*, 🙏\n\nAapki *{gym_name}* membership *{expiry_date}* ko expire hone wali hai.\n\n📋 *Membership Details:*\n• Plan: {plan}\n• Expiry Date: {expiry_date}\n\n✅ Samay par renew karein aur bina kisi rok-tok ke apni fitness journey jaari rakhein! 💪🔥\n\nRenewal ke liye gym mein aayein ya hamse sampark karein:\n📞 {gym_phone}\n\nDhanyawad! 🙏\n— *{gym_name} Team* 🏋️',
+    sms: 'Namaste {name} Ji, aapki {gym_name} membership {expiry_date} ko expire hogi. Plan: {plan}. Jaldi renew karein. Contact: {gym_phone} - {gym_name}',
   },
   welcome: {
-    whatsapp: 'Welcome to {gym_name}, {name}! 💪🏋️\n\nYour membership details:\nPlan: {plan}\nStart: {start_date}\nExpiry: {expiry_date}\n\nLet\'s start your fitness journey! 🔥',
-    sms: 'Welcome to {gym_name}, {name}! Plan: {plan}, Valid till {expiry_date}. Happy training!',
+    whatsapp: '🎉 *{gym_name} mein Swagat Hai!*\n\nNamaste *{name} Ji*, 🙏\n\nAap {gym_name} parivar ka hissa ban gaye hain — hum bahut khush hain! ❤️\n\n📋 *Aapki Membership Details:*\n• Plan: {plan}\n• Start Date: {start_date}\n• Valid Till: {expiry_date}\n\n💪 Consistency se aayein, dedication se kaam karein — results zaroor milenge! 🔥\n\n🏋️ Hum hain aapke saath har kadam par!\nKisi bhi madad ke liye:\n📞 {gym_phone}\n\n— *{gym_name} Family* ❤️',
+    sms: 'Welcome {name} Ji! {gym_name} mein aapka swagat hai. Plan: {plan}, Start: {start_date}, Valid till: {expiry_date}. Happy training! 💪 Contact: {gym_phone}',
   },
   dues: {
-    whatsapp: 'Dear {name}, you have pending dues of ₹{due_amount} at {gym_name}.\n\nPlease clear your dues at your earliest convenience.\n\nThank you! 🙏',
-    sms: 'Dear {name}, pending dues ₹{due_amount} at {gym_name}. Please clear soon.',
+    whatsapp: '🙏 *Namaste {name} Ji,*\n\n{gym_name} ki taraf se aapko yaad dilana chahte hain ki aapka *₹{due_amount}* ka payment abhi baaki hai.\n\nKripya jaldi se jaldi suvidhaanusaar payment clear kar dein taaki aapki membership smoothly chalti rahe. ✅\n\nHumara maksad sirf aapki fitness journey ko uninterrupted rakhna hai! 😊\n\nPayment ke liye gym mein aayein:\n📞 {gym_phone}\n\nDhanyawad! 🙏\n— *{gym_name} Team*',
+    sms: 'Namaste {name} Ji, {gym_name} mein aapka ₹{due_amount} payment baaki hai. Kripya jald clear karein. Contact: {gym_phone}. Dhanyawad! - {gym_name}',
   },
   renewal: {
-    whatsapp: 'Dear {name}, your membership at {gym_name} has been renewed! 🎉💪\n\nPlan: {plan}\nValid till: {expiry_date}\n\nKeep up the great work! 🔥',
-    sms: 'Dear {name}, membership renewed at {gym_name}. Plan: {plan}, Valid till {expiry_date}.',
+    whatsapp: '✅ *Membership Successfully Renewed!*\n\nNamaste *{name} Ji*, 🎉\n\nAapki *{gym_name}* membership successfully renew ho gayi hai!\nAap par bharosa rakhne ke liye bahut bahut shukriya! ❤️\n\n📋 *Updated Membership Details:*\n• Plan: {plan}\n• Valid Till: {expiry_date}\n\n🔥 Ab poori taaqat se workout karein!\nHum hain aapke saath har kadam par! 💪🏋️\n\n— *{gym_name} Family* 🙏',
+    sms: '{name} Ji, {gym_name} membership renew! Plan: {plan}, Valid till: {expiry_date}. Shukriya! 💪 - {gym_name}',
   },
   checkin: {
-    whatsapp: 'Hi {name}! 💪 Your attendance has been marked at {gym_name}.\nKeep crushing your goals! 🏋️',
-    sms: 'Hi {name}, attendance marked at {gym_name}. Keep it up!',
+    whatsapp: '✅ *Attendance Marked!*\n\nNamaste *{name} Ji*, 💪\n\nAap aaj {gym_name} aaye — bahut acha kiya! 🙌\n\n🔥 *"Consistency hi success ki asli chaabi hai!"*\n\nAaj ka session crush karein aur apna best dein! 🏋️💪\n\n— *{gym_name} Team*',
+    sms: 'Hi {name} Ji, {gym_name} mein aapki attendance mark ho gayi! Consistency rakhen — results zaroor milenge! 💪 - {gym_name}',
   },
   inactive: {
-    whatsapp: 'Hi {name}, we miss you at {gym_name}! 😊\nIt\'s been a while since your last visit.\nCome back and let\'s get back on track! 💪🔥',
-    sms: 'Hi {name}, we miss you at {gym_name}! Come back and continue your fitness journey!',
+    whatsapp: '😊 *Namaste {name} Ji,*\n\nHum {gym_name} parivar se aapko bahut miss kar rahe hain! 🙁\n\nKaafi time ho gaya aapka gym mein aaye hue — sab theek toh hai na?\n\nYaad rahe — fitness ek lifelong journey hai, aur ek chhota sa break sab khatam nahi karta! 💪\n\nAaj wapas aayein, hum aapka intezaar kar rahe hain! 🏋️🔥\n\n📞 {gym_phone}\n\n— *{gym_name} Family* ❤️',
+    sms: 'Namaste {name} Ji, {gym_name} mein bahut miss kar rahe hain! Wapas aayein aur fitness journey continue karein. Hum intezaar mein hain! 💪 Contact: {gym_phone}',
   },
   general: {
-    whatsapp: 'Dear {name},\n\nThis is a message from {gym_name}.\n\nThank you! 🙏',
-    sms: 'Dear {name}, message from {gym_name}.',
+    whatsapp: '🙏 *Namaste {name} Ji,*\n\nYeh zaroori message {gym_name} ki taraf se hai.\n\nKisi bhi jaankari ya sahayata ke liye hum hamesha aapki seva mein taiyaar hain.\n📞 {gym_phone}\n\nDhanyawad! 🙏\n— *{gym_name} Team* 🏋️',
+    sms: 'Namaste {name} Ji, {gym_name} ki taraf se message. Koi help ke liye: {gym_phone}. Dhanyawad! - {gym_name}',
   },
   custom: { whatsapp: '', sms: '' },
 };
@@ -153,17 +153,23 @@ const fbToArray = (obj) => {
 const migrateFromOldApp = async () => {
   try {
     const migratedSnap = await get(ref(db, P.MIGRATED));
-    if (migratedSnap.val()) return; // Already migrated
+
+    // Even if migrated flag is set, check if appData/members is actually populated
+    if (migratedSnap.val()) {
+      const existingMembers = await get(ref(db, P.MEMBERS));
+      if (existingMembers.val()) return; // Data is there, all good
+      // Migrated flag set but data missing — force re-migration
+      await remove(ref(db, P.MIGRATED));
+    }
 
     const oldSnap = await get(ref(db, 'gymData'));
     const old = oldSnap.val();
+
     if (!old || !old.members) {
       // No old data - just mark as migrated
       await set(ref(db, P.MIGRATED), { at: new Date().toISOString() });
       return;
     }
-
-    console.log('Migrating old app data to new format...');
     const updates = {};
     let maxRoll = 0;
 
@@ -302,7 +308,6 @@ const migrateFromOldApp = async () => {
 
     // Write everything in one atomic update
     await update(ref(db), updates);
-    console.log('Migration complete!');
   } catch (e) {
     console.error('Migration error:', e);
   }
@@ -639,12 +644,10 @@ export function DataProvider({ children }) {
         Alert.alert('Error', 'Payment ID not found');
         return false;
       }
-      // Immediately update local state so UI refreshes right away
+      // Delete from Firebase first
+      await remove(ref(db, `${P.PAYMENTS}/${paymentId}`));
+      // Then update local state so UI refreshes immediately
       setPayments(prev => prev.filter(p => p.id !== paymentId));
-      // Also delete from Firebase
-      const updates = {};
-      updates[`${P.PAYMENTS}/${paymentId}`] = null;
-      await update(ref(db, '/'), updates);
       return true;
     } catch (e) {
       Alert.alert('Error', 'Delete failed: ' + e.message);

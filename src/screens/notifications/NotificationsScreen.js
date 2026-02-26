@@ -9,7 +9,7 @@ import { openWhatsApp, makeCall, sendSMS, formatDisplayDate, fillTemplate } from
 
 export default function NotificationsScreen({ navigation }) {
   const { theme } = useTheme();
-  const { notifications, members, messageTemplates,
+  const { notifications, members, messageTemplates, settings,
     generateAutoNotifications, markNotifRead, markAllRead,
     clearAllNotifications, deleteNotification, collectDues } = useData();
   const c = theme.colors;
@@ -46,28 +46,33 @@ export default function NotificationsScreen({ navigation }) {
     inactive: { icon: 'account-off', color: '#795548', label: 'Inactive', bg: '#EFEBE9' },
   };
 
+  const _tplData = (member) => ({
+    name: member.name,
+    phone: member.phone,
+    plan: member.plan,
+    rollNo: member.rollNo,
+    startDate: member.startDate,
+    endDate: member.endDate,
+    expiryDate: member.endDate,
+    dueAmount: member.dueAmount,
+    gymName: settings?.gymName || 'SG Fitness Evolution',
+    gymPhone: settings?.gymPhone || '',
+  });
+
   // Build WhatsApp message for any notification type
   const getWhatsAppMsg = (type, member) => {
     const tpl = messageTemplates[type];
     const whatsappTpl = tpl?.whatsapp || tpl || '';
-    if (!whatsappTpl) return `Hi ${member.name}, message from SG Fitness Evolution.`;
-    return fillTemplate(whatsappTpl, {
-      name: member.name, phone: member.phone, plan: member.plan,
-      startDate: member.startDate, endDate: member.endDate, expiryDate: member.endDate,
-      dueAmount: member.dueAmount, gymName: 'SG Fitness Evolution',
-    });
+    if (!whatsappTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness Evolution'} ki taraf se message.`;
+    return fillTemplate(whatsappTpl, _tplData(member));
   };
 
   // Build SMS message for any notification type
   const getSmsMsg = (type, member) => {
     const tpl = messageTemplates[type];
     const smsTpl = tpl?.sms || '';
-    if (!smsTpl) return `Hi ${member.name}, message from SG Fitness Evolution.`;
-    return fillTemplate(smsTpl, {
-      name: member.name, phone: member.phone, plan: member.plan,
-      startDate: member.startDate, endDate: member.endDate, expiryDate: member.endDate,
-      dueAmount: member.dueAmount, gymName: 'SG Fitness Evolution',
-    });
+    if (!smsTpl) return `Namaste ${member.name} Ji, ${settings?.gymName || 'SG Fitness Evolution'} ki taraf se message. Contact: ${settings?.gymPhone || ''}`;
+    return fillTemplate(smsTpl, _tplData(member));
   };
 
   // Send WhatsApp for any notification

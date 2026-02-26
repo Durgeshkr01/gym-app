@@ -2,9 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set, get, push, update, remove } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCId5RybPNS7EJbBdSr0F93CzQ5F-quEK0',
-  projectId: 'sg-fitness-new',
-  databaseURL: 'https://sg-fitness-new-default-rtdb.firebaseio.com',
+  apiKey: 'AIzaSyBU1YVA1bgSSlRhVGEs91_leMjSiT1YPcQ',
+  authDomain: 'android-gym-56ceb.firebaseapp.com',
+  databaseURL: 'https://android-gym-56ceb-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'android-gym-56ceb',
+  storageBucket: 'android-gym-56ceb.firebasestorage.app',
+  messagingSenderId: '419893996203',
+  appId: '1:419893996203:web:9114c7e1879b4ce4c0a5ee',
 };
 
 const app = initializeApp(firebaseConfig);
