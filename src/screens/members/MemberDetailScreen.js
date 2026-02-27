@@ -53,13 +53,26 @@ export default function MemberDetailScreen({ navigation, route }) {
   const statusColor = getStatusColor(status);
 
   const handleDelete = () => {
-    Alert.alert('Delete Member', `Kya aap ${member.name} ko delete karna chahte hain?`, [
-      { text: 'Cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => {
-        navigation.goBack(); // navigate first to avoid race condition with Firebase listener
-        setTimeout(() => deleteMember(member.id), 300);
-      }},
-    ]);
+    Alert.alert(
+      'Member Delete',
+      `Kya aap "${member.name}" ko permanently delete karna chahte hain?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete', style: 'destructive',
+          onPress: async () => {
+            try {
+              const ok = await deleteMember(member.id);
+              if (ok !== false) {
+                navigation.goBack();
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Delete failed: ' + e.message);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleCollect = async () => {

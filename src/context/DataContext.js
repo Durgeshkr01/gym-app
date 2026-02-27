@@ -542,7 +542,18 @@ export function DataProvider({ children }) {
   }, []);
 
   const deleteMember = useCallback(async (memberId) => {
-    await remove(ref(db, `${P.MEMBERS}/${memberId}`));
+    try {
+      if (!memberId) {
+        Alert.alert('Error', 'Member ID missing');
+        return false;
+      }
+      await remove(ref(db, `${P.MEMBERS}/${memberId}`));
+      return true;
+    } catch (e) {
+      console.error('deleteMember error:', e);
+      Alert.alert('Delete Failed', `Firebase error: ${e?.message || e}\n\nFirebase Rules check karo — delete permission deni hogi.`);
+      return false;
+    }
   }, []);
 
   const renewMember = useCallback(async (memberId, planId, paidAmount, discount = 0, customStartDate = null, customEndDate = null) => {
