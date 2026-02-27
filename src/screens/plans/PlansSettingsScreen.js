@@ -69,15 +69,15 @@ export default function PlansSettingsScreen({ navigation }) {
               {editingId ? 'Edit Plan' : 'New Plan'}
             </Text>
             <TextInput label="Plan Name *" value={form.name} onChangeText={v => setForm(p => ({ ...p, name: v }))}
-              mode="outlined" style={styles.inp} dense placeholder="e.g., Monthly, Quarterly" />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense placeholder="e.g., Monthly, Quarterly" />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TextInput label="Amount (₹) *" value={form.amount} onChangeText={v => setForm(p => ({ ...p, amount: v }))}
-                mode="outlined" keyboardType="number-pad" style={[styles.inp, { flex: 1 }]} dense />
+                mode="outlined" keyboardType="number-pad" textColor="#333" style={[styles.inp, { flex: 1, backgroundColor: '#fff' }]} dense />
               <TextInput label="Duration (days) *" value={form.duration} onChangeText={v => setForm(p => ({ ...p, duration: v }))}
-                mode="outlined" keyboardType="number-pad" style={[styles.inp, { flex: 1 }]} dense />
+                mode="outlined" keyboardType="number-pad" textColor="#333" style={[styles.inp, { flex: 1, backgroundColor: '#fff' }]} dense />
             </View>
             <TextInput label="Description" value={form.description} onChangeText={v => setForm(p => ({ ...p, description: v }))}
-              mode="outlined" style={styles.inp} dense />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
               <Button mode="contained" onPress={handleSavePlan} style={{ flex: 1, backgroundColor: c.primary }}>
                 {editingId ? 'Update' : 'Add Plan'}</Button>
@@ -131,16 +131,16 @@ export default function PlansSettingsScreen({ navigation }) {
           <Text style={[styles.secTitle, { color: c.text }]}>Gym Details</Text>
           <TextInput label="Gym Name" value={localSettings.gymName || 'SG Fitness 2.0'}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymName: v }))}
-            mode="outlined" style={styles.inp} />
+            mode="outlined" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
           <TextInput label="Owner Name" value={localSettings.ownerName || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, ownerName: v }))}
-            mode="outlined" style={styles.inp} />
+            mode="outlined" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
           <TextInput label="Phone" value={localSettings.gymPhone || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymPhone: v }))}
-            mode="outlined" keyboardType="phone-pad" style={styles.inp} />
+            mode="outlined" keyboardType="phone-pad" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
           <TextInput label="Address" value={localSettings.gymAddress || ''}
             onChangeText={v => setLocalSettings(p => ({ ...p, gymAddress: v }))}
-            mode="outlined" style={styles.inp} />
+            mode="outlined" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
         </Card.Content>
       </Card>
 
@@ -149,10 +149,10 @@ export default function PlansSettingsScreen({ navigation }) {
           <Text style={[styles.secTitle, { color: c.text }]}>Fee Settings</Text>
           <TextInput label="Admission Fee (₹)" value={String(localSettings.admissionFee || 200)}
             onChangeText={v => setLocalSettings(p => ({ ...p, admissionFee: Number(v) || 0 }))}
-            mode="outlined" keyboardType="number-pad" style={styles.inp} />
+            mode="outlined" keyboardType="number-pad" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
           <TextInput label="Expiry Alert Days" value={String(localSettings.expiryAlertDays || 7)}
             onChangeText={v => setLocalSettings(p => ({ ...p, expiryAlertDays: Number(v) || 7 }))}
-            mode="outlined" keyboardType="number-pad" style={styles.inp} />
+            mode="outlined" keyboardType="number-pad" textColor={c.text} style={[styles.inp, { backgroundColor: c.surface }]} />
           <Text style={{ fontSize: 11, color: c.muted }}>Members will appear in "Expiring" list this many days before expiry</Text>
         </Card.Content>
       </Card>

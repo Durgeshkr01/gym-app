@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { Card, Text, Button, Avatar, Chip, Divider, Menu, IconButton, TextInput, Portal, Dialog, RadioButton } from 'react-native-paper';
+import { Card, Text, Button, Avatar, Chip, Divider, Menu, IconButton, TextInput, RadioButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,7 +9,7 @@ import DateInput from '../../components/DateInput';
 
 export default function MemberDetailScreen({ navigation, route }) {
   const { theme } = useTheme();
-  const { members, deleteMember, collectDues, renewMember, plans, settings, messageTemplates } = useData();
+  const { members, deleteMember, collectDues, renewMember, updateMember, plans, settings, messageTemplates, workoutPlans, dietPlans } = useData();
   const c = theme.colors;
   const memberId = route?.params?.memberId;
   const member = members.find(m => m.id === memberId);
@@ -22,6 +22,8 @@ export default function MemberDetailScreen({ navigation, route }) {
   const [renewMenuVisible, setRenewMenuVisible] = useState(false);
   const [renewMode, setRenewMode] = useState('auto'); // 'auto' | 'custom'
   const [renewStartDate, setRenewStartDate] = useState('');
+  const [showWorkoutPicker, setShowWorkoutPicker] = useState(false);
+  const [showDietPicker, setShowDietPicker] = useState(false);
   const [renewEndDate, setRenewEndDate] = useState('');
 
   if (!member) {
@@ -169,6 +171,115 @@ export default function MemberDetailScreen({ navigation, route }) {
         </Card.Content>
       </Card>
 
+      {/* Fitness Plans */}
+      <Card style={[styles.card, { backgroundColor: c.surface }]}>
+        <Card.Content>
+          <Text style={[styles.secTitle, { color: c.primary }]}>Fitness Plans</Text>
+
+          {/* Workout Plan */}
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#FF6B35', marginBottom: 6 }}>💪 Workout Plan</Text>
+          {member.workoutPlan ? (
+            <View style={{ backgroundColor: 'rgba(255,107,53,0.08)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
+                {workoutPlans.find(p => p.id === member.workoutPlan)?.name || 'Unknown Plan'}
+              </Text>
+              <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
+                {workoutPlans.find(p => p.id === member.workoutPlan)?.category}{workoutPlans.find(p => p.id === member.workoutPlan)?.duration ? ' • ' + workoutPlans.find(p => p.id === member.workoutPlan)?.duration : ''}
+              </Text>
+            </View>
+          ) : (
+            <Text style={{ fontSize: 12, color: c.muted, marginBottom: 8, fontStyle: 'italic' }}>No workout plan assigned</Text>
+          )}
+          <TouchableOpacity onPress={() => { setShowWorkoutPicker(!showWorkoutPicker); setShowDietPicker(false); }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10,
+              backgroundColor: 'rgba(255,107,53,0.1)', borderRadius: 6, marginBottom: 6, alignSelf: 'flex-start' }}>
+              <MaterialCommunityIcons name={member.workoutPlan ? 'pencil' : 'plus'} size={14} color="#FF6B35" />
+              <Text style={{ fontSize: 12, color: '#FF6B35', marginLeft: 4, fontWeight: '600' }}>
+                {member.workoutPlan ? 'Change Plan' : 'Assign Plan'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {showWorkoutPicker && (
+            <View style={{ backgroundColor: '#fff', borderRadius: 8, elevation: 3, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: 10, overflow: 'hidden' }}>
+              <TouchableOpacity
+                onPress={() => { updateMember(member.id, { workoutPlan: '' }); setShowWorkoutPicker(false); }}
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 0.5, borderColor: '#F0F0F0',
+                  backgroundColor: !member.workoutPlan ? 'rgba(255,107,53,0.08)' : '#fff' }}>
+                <Text style={{ fontSize: 13, color: '#999', fontStyle: 'italic' }}>— Remove Plan —</Text>
+              </TouchableOpacity>
+              {workoutPlans.length === 0 ? (
+                <Text style={{ padding: 12, color: '#999', fontStyle: 'italic' }}>No workout plans created yet. Go to Workout Plans screen to add.</Text>
+              ) : workoutPlans.map(p => (
+                <TouchableOpacity key={p.id}
+                  onPress={() => { updateMember(member.id, { workoutPlan: p.id }); setShowWorkoutPicker(false); }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16,
+                    backgroundColor: member.workoutPlan === p.id ? 'rgba(255,107,53,0.1)' : '#fff',
+                    borderBottomWidth: 0.5, borderColor: '#F0F0F0' }}>
+                  <MaterialCommunityIcons name="dumbbell" size={16} color="#FF6B35" />
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <Text style={{ fontSize: 13, color: '#333', fontWeight: '500' }}>{p.name}</Text>
+                    <Text style={{ fontSize: 11, color: '#666' }}>{p.category}{p.duration ? ' • ' + p.duration : ''}</Text>
+                  </View>
+                  {member.workoutPlan === p.id && <MaterialCommunityIcons name="check-circle" size={18} color="#FF6B35" />}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <Divider style={{ marginVertical: 8 }} />
+
+          {/* Diet Plan */}
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#4CAF50', marginBottom: 6 }}>🥗 Diet Plan</Text>
+          {member.dietPlan ? (
+            <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
+                {dietPlans.find(p => p.id === member.dietPlan)?.name || 'Unknown Plan'}
+              </Text>
+              <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
+                {dietPlans.find(p => p.id === member.dietPlan)?.type}{dietPlans.find(p => p.id === member.dietPlan)?.calories ? ' • ' + dietPlans.find(p => p.id === member.dietPlan)?.calories + ' cal' : ''}
+              </Text>
+            </View>
+          ) : (
+            <Text style={{ fontSize: 12, color: c.muted, marginBottom: 8, fontStyle: 'italic' }}>No diet plan assigned</Text>
+          )}
+          <TouchableOpacity onPress={() => { setShowDietPicker(!showDietPicker); setShowWorkoutPicker(false); }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10,
+              backgroundColor: 'rgba(76,175,80,0.1)', borderRadius: 6, marginBottom: 6, alignSelf: 'flex-start' }}>
+              <MaterialCommunityIcons name={member.dietPlan ? 'pencil' : 'plus'} size={14} color="#4CAF50" />
+              <Text style={{ fontSize: 12, color: '#4CAF50', marginLeft: 4, fontWeight: '600' }}>
+                {member.dietPlan ? 'Change Plan' : 'Assign Plan'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {showDietPicker && (
+            <View style={{ backgroundColor: '#fff', borderRadius: 8, elevation: 3, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: 10, overflow: 'hidden' }}>
+              <TouchableOpacity
+                onPress={() => { updateMember(member.id, { dietPlan: '' }); setShowDietPicker(false); }}
+                style={{ paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 0.5, borderColor: '#F0F0F0',
+                  backgroundColor: !member.dietPlan ? 'rgba(76,175,80,0.08)' : '#fff' }}>
+                <Text style={{ fontSize: 13, color: '#999', fontStyle: 'italic' }}>— Remove Plan —</Text>
+              </TouchableOpacity>
+              {dietPlans.length === 0 ? (
+                <Text style={{ padding: 12, color: '#999', fontStyle: 'italic' }}>No diet plans created yet. Go to Workout Plans screen to add.</Text>
+              ) : dietPlans.map(p => (
+                <TouchableOpacity key={p.id}
+                  onPress={() => { updateMember(member.id, { dietPlan: p.id }); setShowDietPicker(false); }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16,
+                    backgroundColor: member.dietPlan === p.id ? 'rgba(76,175,80,0.1)' : '#fff',
+                    borderBottomWidth: 0.5, borderColor: '#F0F0F0' }}>
+                  <MaterialCommunityIcons name="food-apple" size={16} color="#4CAF50" />
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <Text style={{ fontSize: 13, color: '#333', fontWeight: '500' }}>{p.name}</Text>
+                    <Text style={{ fontSize: 11, color: '#666' }}>{p.type}{p.calories ? ' • ' + p.calories + ' cal' : ''}</Text>
+                  </View>
+                  {member.dietPlan === p.id && <MaterialCommunityIcons name="check-circle" size={18} color="#4CAF50" />}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </Card.Content>
+      </Card>
+
       {/* Collect Dues */}
       {showCollect && (
         <Card style={[styles.card, { backgroundColor: '#FFF9E6' }]}>
@@ -190,29 +301,31 @@ export default function MemberDetailScreen({ navigation, route }) {
         <Card style={[styles.card, { backgroundColor: '#E8F5E9' }]}>
           <Card.Content>
             <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Renew Membership</Text>
-            <TouchableOpacity onPress={() => setRenewMenuVisible(true)}>
-              <TextInput label="Select Plan" value={plans.find(p => p.id === renewPlanId)?.name || ''} mode="outlined"
-                editable={false} pointerEvents="none" style={{ marginBottom: 10 }} right={<TextInput.Icon icon="chevron-down" />} />
+            <TouchableOpacity onPress={() => setRenewMenuVisible(!renewMenuVisible)}>
+              <TextInput label="Select Plan" value={plans.find(p => p.id === renewPlanId)?.name || 'Tap to select...'} mode="outlined"
+                editable={false} pointerEvents="none" textColor="#333"
+                style={{ marginBottom: renewMenuVisible ? 2 : 10, backgroundColor: '#fff' }}
+                right={<TextInput.Icon icon={renewMenuVisible ? 'chevron-up' : 'chevron-down'} />} />
             </TouchableOpacity>
-            <Portal>
-              <Dialog visible={renewMenuVisible} onDismiss={() => setRenewMenuVisible(false)} style={{ backgroundColor: '#fff', borderRadius: 12 }}>
-                <Dialog.Title style={{ fontSize: 16 }}>Select Plan</Dialog.Title>
-                <Dialog.ScrollArea style={{ maxHeight: 300, paddingHorizontal: 0 }}>
-                  <ScrollView>
-                    {plans.map(p => (
-                      <TouchableOpacity key={p.id} onPress={() => { setRenewPlanId(p.id); setRenewAmount(String(p.amount || p.price || 0)); setRenewMenuVisible(false); }}
-                        style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: renewPlanId === p.id ? 'rgba(255,107,53,0.1)' : 'transparent' }}>
-                        <RadioButton value={p.id} status={renewPlanId === p.id ? 'checked' : 'unchecked'} color="#FF6B35" />
-                        <Text style={{ fontSize: 14, marginLeft: 8, flex: 1 }}>{p.name} - ₹{p.amount || p.price || 0}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </Dialog.ScrollArea>
-                <Dialog.Actions>
-                  <Button onPress={() => setRenewMenuVisible(false)}>Cancel</Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
+            {renewMenuVisible && (
+              <View style={{ backgroundColor: '#fff', borderRadius: 8, marginBottom: 10, elevation: 4, borderWidth: 1, borderColor: '#E0E0E0', overflow: 'hidden' }}>
+                {plans.map(p => (
+                  <TouchableOpacity key={p.id}
+                    onPress={() => { setRenewPlanId(p.id); setRenewAmount(String(p.amount || p.price || 0)); setRenewMenuVisible(false); }}
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16,
+                      backgroundColor: renewPlanId === p.id ? 'rgba(255,107,53,0.1)' : '#fff',
+                      borderBottomWidth: 0.5, borderColor: '#F0F0F0' }}>
+                    <RadioButton value={p.id} status={renewPlanId === p.id ? 'checked' : 'unchecked'} color="#FF6B35"
+                      onPress={() => { setRenewPlanId(p.id); setRenewAmount(String(p.amount || p.price || 0)); setRenewMenuVisible(false); }} />
+                    <View style={{ flex: 1, marginLeft: 8 }}>
+                      <Text style={{ fontSize: 14, color: '#333', fontWeight: '500' }}>{p.name}</Text>
+                      <Text style={{ fontSize: 12, color: '#666' }}>₹{p.amount || p.price || 0} • {p.duration} days</Text>
+                    </View>
+                    {renewPlanId === p.id && <MaterialCommunityIcons name="check-circle" size={20} color="#FF6B35" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {/* Duration Mode */}
             <Text style={{ fontWeight: 'bold', color: '#333', marginBottom: 6 }}>Membership Duration</Text>

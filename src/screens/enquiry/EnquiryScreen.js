@@ -130,15 +130,15 @@ export default function EnquiryScreen({ navigation }) {
           <Card.Content>
             <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: c.primary }}>New Enquiry</Text>
             <TextInput label="Name *" value={form.name} onChangeText={v => setForm(p => ({ ...p, name: v }))}
-              mode="outlined" style={styles.inp} dense />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Phone *" value={form.phone} onChangeText={v => setForm(p => ({ ...p, phone: v }))}
-              mode="outlined" keyboardType="phone-pad" maxLength={10} style={styles.inp} dense />
+              mode="outlined" keyboardType="phone-pad" maxLength={10} textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Interest" value={form.interest} onChangeText={v => setForm(p => ({ ...p, interest: v }))}
-              mode="outlined" style={styles.inp} dense />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Source" value={form.source} onChangeText={v => setForm(p => ({ ...p, source: v }))}
-              mode="outlined" style={styles.inp} dense />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Notes" value={form.notes} onChangeText={v => setForm(p => ({ ...p, notes: v }))}
-              mode="outlined" style={styles.inp} dense />
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <View style={{ flexDirection: 'row', marginTop: 5 }}>
               <Button mode="contained" onPress={handleAdd} style={{ flex: 1, marginRight: 5, backgroundColor: c.primary }}>Add</Button>
               <Button mode="outlined" onPress={() => setShowAdd(false)} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingTop: 8, borderTopWidth: 0.5, borderColor: '#E0E0E0', flexWrap: 'wrap' },
   actBtn: { padding: 6 },
   addCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2 },
-  inp: { marginBottom: 8, backgroundColor: 'transparent' },
+  inp: { marginBottom: 8 },
   empty: { alignItems: 'center', paddingTop: 60 },
   fab: { position: 'absolute', right: 16, bottom: 16 },
 });
