@@ -26,6 +26,20 @@ export default function MemberDetailScreen({ navigation, route }) {
   const [showDietPicker, setShowDietPicker] = useState(false);
   const [renewEndDate, setRenewEndDate] = useState('');
 
+  const sendWorkoutPlanWhatsApp = (plan) => {
+    const exercises = (plan.exercises || plan.items || []);
+    const exList = exercises.map((e, i) => `${i + 1}. ${e}`).join('\n');
+    const msg = `💪 *Workout Plan Assigned — ${settings?.gymName || 'SG Fitness'}*\n\nNamaste *${member.name} Ji!* 🙏\n\nAapka workout plan set kar diya gaya hai:\n\n📋 *${plan.name}*\n🏋️ Category: ${plan.category || plan.level || ''}${plan.duration ? '\n⏱ Duration: ' + plan.duration : ''}\n${plan.description ? '\n📝 ' + plan.description + '\n' : ''}\n*Exercises:*\n${exList}\n\nHar din consistently train karein — results zaroor milenge! 🔥\n\n📞 ${settings?.gymPhone || ''}\n— *${settings?.gymName || 'SG Fitness'} Team* 🏋️`;
+    openWhatsApp(member.phone, msg);
+  };
+
+  const sendDietPlanWhatsApp = (plan) => {
+    const meals = (plan.meals || plan.items || []);
+    const mealList = meals.join('\n');
+    const msg = `🥗 *Diet Plan Assigned — ${settings?.gymName || 'SG Fitness'}*\n\nNamaste *${member.name} Ji!* 🙏\n\nAapka diet plan set kar diya gaya hai:\n\n📋 *${plan.name}*\n🍽️ Type: ${plan.type || ''}${plan.calories ? '\n🔥 Calories: ' + plan.calories + ' cal/day' : ''}\n${plan.description ? '\n📝 ' + plan.description + '\n' : ''}\n*Meal Plan:*\n${mealList}\n\nIs diet plan ko follow karein aur gym workout ke saath combine karein. Jo aap khaate hain woh dikhta hai! 💪\n\n📞 ${settings?.gymPhone || ''}\n— *${settings?.gymName || 'SG Fitness'} Team* 🥗`;
+    openWhatsApp(member.phone, msg);
+  };
+
   if (!member) {
     return (
       <View style={[styles.center, { backgroundColor: c.background }]}>
@@ -39,9 +53,12 @@ export default function MemberDetailScreen({ navigation, route }) {
   const statusColor = getStatusColor(status);
 
   const handleDelete = () => {
-    Alert.alert('Delete Member', `Are you sure you want to delete ${member.name}?`, [
+    Alert.alert('Delete Member', `Kya aap ${member.name} ko delete karna chahte hain?`, [
       { text: 'Cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteMember(member.id); navigation.goBack(); } },
+      { text: 'Delete', style: 'destructive', onPress: () => {
+        navigation.goBack(); // navigate first to avoid race condition with Firebase listener
+        setTimeout(() => deleteMember(member.id), 300);
+      }},
     ]);
   };
 
@@ -180,12 +197,22 @@ export default function MemberDetailScreen({ navigation, route }) {
           <Text style={{ fontSize: 13, fontWeight: '600', color: '#FF6B35', marginBottom: 6 }}>💪 Workout Plan</Text>
           {member.workoutPlan ? (
             <View style={{ backgroundColor: 'rgba(255,107,53,0.08)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
-                {workoutPlans.find(p => p.id === member.workoutPlan)?.name || 'Unknown Plan'}
-              </Text>
-              <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
-                {workoutPlans.find(p => p.id === member.workoutPlan)?.category}{workoutPlans.find(p => p.id === member.workoutPlan)?.duration ? ' • ' + workoutPlans.find(p => p.id === member.workoutPlan)?.duration : ''}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
+                    {workoutPlans.find(p => p.id === member.workoutPlan)?.name || 'Unknown Plan'}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
+                    {workoutPlans.find(p => p.id === member.workoutPlan)?.category}{workoutPlans.find(p => p.id === member.workoutPlan)?.duration ? ' • ' + workoutPlans.find(p => p.id === member.workoutPlan)?.duration : ''}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => { const pl = workoutPlans.find(p => p.id === member.workoutPlan); if (pl) sendWorkoutPlanWhatsApp(pl); }}
+                  style={{ backgroundColor: '#25D366', borderRadius: 6, padding: 6, flexDirection: 'row', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="whatsapp" size={14} color="#fff" />
+                  <Text style={{ fontSize: 11, color: '#fff', marginLeft: 3, fontWeight: '600' }}>Send</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <Text style={{ fontSize: 12, color: c.muted, marginBottom: 8, fontStyle: 'italic' }}>No workout plan assigned</Text>
@@ -211,7 +238,18 @@ export default function MemberDetailScreen({ navigation, route }) {
                 <Text style={{ padding: 12, color: '#999', fontStyle: 'italic' }}>No workout plans created yet. Go to Workout Plans screen to add.</Text>
               ) : workoutPlans.map(p => (
                 <TouchableOpacity key={p.id}
-                  onPress={() => { updateMember(member.id, { workoutPlan: p.id }); setShowWorkoutPicker(false); }}
+                  onPress={() => {
+                    updateMember(member.id, { workoutPlan: p.id });
+                    setShowWorkoutPicker(false);
+                    Alert.alert(
+                      '💪 Plan Assigned!',
+                      `"${p.name}" assign ho gaya.\n\nKya ${member.name} ko WhatsApp par plan bhejein?`,
+                      [
+                        { text: 'Baad mein', style: 'cancel' },
+                        { text: '📲 WhatsApp pher Bhejo', onPress: () => sendWorkoutPlanWhatsApp(p) },
+                      ]
+                    );
+                  }}
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16,
                     backgroundColor: member.workoutPlan === p.id ? 'rgba(255,107,53,0.1)' : '#fff',
                     borderBottomWidth: 0.5, borderColor: '#F0F0F0' }}>
@@ -232,12 +270,22 @@ export default function MemberDetailScreen({ navigation, route }) {
           <Text style={{ fontSize: 13, fontWeight: '600', color: '#4CAF50', marginBottom: 6 }}>🥗 Diet Plan</Text>
           {member.dietPlan ? (
             <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
-                {dietPlans.find(p => p.id === member.dietPlan)?.name || 'Unknown Plan'}
-              </Text>
-              <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
-                {dietPlans.find(p => p.id === member.dietPlan)?.type}{dietPlans.find(p => p.id === member.dietPlan)?.calories ? ' • ' + dietPlans.find(p => p.id === member.dietPlan)?.calories + ' cal' : ''}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: c.text }}>
+                    {dietPlans.find(p => p.id === member.dietPlan)?.name || 'Unknown Plan'}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: c.muted, marginTop: 2 }}>
+                    {dietPlans.find(p => p.id === member.dietPlan)?.type}{dietPlans.find(p => p.id === member.dietPlan)?.calories ? ' • ' + dietPlans.find(p => p.id === member.dietPlan)?.calories + ' cal' : ''}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => { const pl = dietPlans.find(p => p.id === member.dietPlan); if (pl) sendDietPlanWhatsApp(pl); }}
+                  style={{ backgroundColor: '#25D366', borderRadius: 6, padding: 6, flexDirection: 'row', alignItems: 'center' }}>
+                  <MaterialCommunityIcons name="whatsapp" size={14} color="#fff" />
+                  <Text style={{ fontSize: 11, color: '#fff', marginLeft: 3, fontWeight: '600' }}>Send</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <Text style={{ fontSize: 12, color: c.muted, marginBottom: 8, fontStyle: 'italic' }}>No diet plan assigned</Text>
@@ -263,7 +311,18 @@ export default function MemberDetailScreen({ navigation, route }) {
                 <Text style={{ padding: 12, color: '#999', fontStyle: 'italic' }}>No diet plans created yet. Go to Workout Plans screen to add.</Text>
               ) : dietPlans.map(p => (
                 <TouchableOpacity key={p.id}
-                  onPress={() => { updateMember(member.id, { dietPlan: p.id }); setShowDietPicker(false); }}
+                  onPress={() => {
+                    updateMember(member.id, { dietPlan: p.id });
+                    setShowDietPicker(false);
+                    Alert.alert(
+                      '🥗 Plan Assigned!',
+                      `"${p.name}" assign ho gaya.\n\nKya ${member.name} ko WhatsApp par diet plan bhejein?`,
+                      [
+                        { text: 'Baad mein', style: 'cancel' },
+                        { text: '📲 WhatsApp pe Bhejo', onPress: () => sendDietPlanWhatsApp(p) },
+                      ]
+                    );
+                  }}
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16,
                     backgroundColor: member.dietPlan === p.id ? 'rgba(76,175,80,0.1)' : '#fff',
                     borderBottomWidth: 0.5, borderColor: '#F0F0F0' }}>

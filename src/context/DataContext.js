@@ -76,15 +76,54 @@ const DEFAULT_TEMPLATES = {
 };
 
 const DEFAULT_WORKOUT_PLANS = [
-  { id: 'w1', name: 'Beginner Full Body', type: 'workout', level: 'Beginner', items: ['Push-ups 3x15', 'Squats 3x20', 'Plank 3x30sec', 'Lunges 3x12', 'Dumbbell Rows 3x12'] },
-  { id: 'w2', name: 'Intermediate Split', type: 'workout', level: 'Intermediate', items: ['Bench Press 4x10', 'Deadlift 4x8', 'Pull-ups 3x10', 'Shoulder Press 4x10', 'Barbell Curls 3x12'] },
-  { id: 'w3', name: 'Advanced Power', type: 'workout', level: 'Advanced', items: ['Heavy Squats 5x5', 'Heavy Deadlift 5x5', 'Heavy Bench 5x5', 'Weighted Pull-ups 4x8', 'Power Cleans 4x6'] },
+  {
+    id: 'w1', name: 'Beginner Full Body', category: 'Full Body', duration: '45 mins',
+    description: '3 din/week. Har muscle group ke liye basic exercises.',
+    exercises: ['Warm Up — 5 min brisk walk / jumping jacks', 'Push-ups — 3 sets x 15 reps', 'Bodyweight Squats — 3 sets x 20 reps', 'Dumbbell Rows — 3 sets x 12 reps (each side)', 'Lunges — 3 sets x 12 reps (each leg)', 'Plank — 3 sets x 30 seconds', 'Dumbbell Shoulder Press — 3 sets x 12 reps', 'Cool Down Stretch — 5 min'],
+  },
+  {
+    id: 'w2', name: 'Intermediate Push-Pull-Legs', category: 'Split', duration: '60 mins',
+    description: '6 din/week split. Muscle hypertrophy ke liye best.',
+    exercises: ['Push Day: Bench Press 4x10, Incline DB Press 3x12, Cable Fly 3x15, Shoulder Press 4x10, Lateral Raise 3x15, Tricep Pushdown 3x12', 'Pull Day: Deadlift 4x8, Pull-ups 4x8, Seated Cable Row 4x10, Face Pull 3x15, Barbell Curl 3x12, Hammer Curl 3x12', 'Leg Day: Back Squat 4x10, Leg Press 4x12, Romanian Deadlift 3x10, Leg Curl 3x12, Calf Raises 4x20'],
+  },
+  {
+    id: 'w3', name: 'Advanced Strength & Power', category: 'Strength', duration: '75 mins',
+    description: 'Heavy compound lifts. Experienced gym members ke liye.',
+    exercises: ['Back Squat — 5 sets x 5 reps (heavy)', 'Barbell Deadlift — 5 sets x 5 reps (heavy)', 'Bench Press — 5 sets x 5 reps (heavy)', 'Weighted Pull-ups — 4 sets x 6 reps', 'Overhead Press — 4 sets x 6 reps', 'Power Cleans — 4 sets x 4 reps', 'Barbell Row — 4 sets x 6 reps', 'Core: Ab Wheel Rollout 3x10'],
+  },
+  {
+    id: 'w4', name: 'Weight Loss Cardio Mix', category: 'Cardio + Strength', duration: '40 mins',
+    description: 'Fat burn ke liye. Cardio + light weights combination.',
+    exercises: ['Treadmill Warm Up — 5 min (moderate pace)', 'Jump Squats — 3 sets x 15 reps', 'Burpees — 3 sets x 10 reps', 'Mountain Climbers — 3 sets x 20 reps', 'Kettlebell Swings — 3 sets x 15 reps', 'Box Jumps — 3 sets x 10 reps', 'Battle Ropes — 3 sets x 30 seconds', 'Treadmill HIIT — 10 min (1 min fast / 1 min slow)', 'Cool Down — 5 min walking'],
+  },
+  {
+    id: 'w5', name: 'Home Workout (No Equipment)', category: 'Home Workout', duration: '35 mins',
+    description: 'Ghar par bina equipment ke kiya ja sakta hai.',
+    exercises: ['Jumping Jacks — 3 sets x 30 reps', 'Push-ups — 4 sets x 20 reps', 'Bodyweight Squats — 4 sets x 25 reps', 'Glute Bridge — 3 sets x 20 reps', 'Tricep Dips (chair) — 3 sets x 15 reps', 'High Knees — 3 sets x 30 seconds', 'Superman Hold — 3 sets x 15 reps', 'Plank — 3 sets x 45 seconds', 'Bicycle Crunches — 3 sets x 20 reps'],
+  },
 ];
 
 const DEFAULT_DIET_PLANS = [
-  { id: 'd1', name: 'Weight Gain (3000 cal)', type: 'diet', calories: '3000', items: ['Breakfast: 6 Eggs + Oats + Banana', 'Snack: Protein Shake + Nuts', 'Lunch: Rice + Chicken + Salad', 'Snack: Peanut Butter Toast', 'Dinner: Roti + Paneer + Dal', 'Before Bed: Milk + Almonds'] },
-  { id: 'd2', name: 'Weight Loss (1800 cal)', type: 'diet', calories: '1800', items: ['Breakfast: Oats + 3 Egg Whites', 'Snack: Green Tea + Apple', 'Lunch: Brown Rice + Grilled Chicken', 'Snack: Sprouts Salad', 'Dinner: Soup + Grilled Fish', 'Before Bed: Warm Water + Lemon'] },
-  { id: 'd3', name: 'Maintenance (2200 cal)', type: 'diet', calories: '2200', items: ['Breakfast: Poha + 4 Eggs', 'Snack: Fruits + Yogurt', 'Lunch: Rice + Dal + Sabzi', 'Snack: Protein Bar', 'Dinner: Roti + Chicken Curry', 'Before Bed: Milk'] },
+  {
+    id: 'd1', name: 'Weight Gain (3000 cal)', type: 'Weight Gain', calories: '3000',
+    description: 'Muscle mass badhane ke liye high protein & calorie diet.',
+    meals: ['🌅 5:30 AM — Khali pet 2 glass garam paani + soaked almonds (10)', '🍳 7:00 AM Breakfast — 6 Boiled Eggs + 1 bowl Oats + 1 Banana + 1 glass Milk', '🥤 10:00 AM Snack — Protein Shake (1.5 scoop) + Peanut Butter Bread (2 slice)', '🍱 1:00 PM Lunch — 3 Roti/Rice + 200g Chicken Curry + Salad + Dal', '🍌 4:00 PM Pre-Workout — Banana + Dry Fruits + Black Coffee', '🥗 7:00 PM Post-Workout — Protein Shake + 2 Boiled Eggs', '🍛 8:30 PM Dinner — 2 Roti + Paneer Bhurji + Mixed Vegetables + Dal', '🥛 10:00 PM Before Bed — 1 glass Milk + 5 Almonds'],
+  },
+  {
+    id: 'd2', name: 'Weight Loss (1800 cal)', type: 'Weight Loss', calories: '1800',
+    description: 'Fat burn ke liye low calorie, high protein diet.',
+    meals: ['🌅 5:30 AM — Garam paani + nimbu + shahad', '🍳 7:00 AM Breakfast — 3 Egg Whites + 1 bowl Oats (no sugar) + Green Tea', '🥤 10:00 AM Snack — 1 Apple / Cucumber + 1 cup Green Tea', '🍱 1:00 PM Lunch — 1 cup Brown Rice + Grilled Chicken 150g + Salad (no dressing)', '🍊 4:00 PM Snack — Sprouts Salad + Black Coffee (no sugar)', '🏋️ Pre-Workout — Banana (half) + Green Tea', '🥗 7:00 PM Post-Workout — 2 Egg Whites + 1 cup low-fat curd', '🍛 8:30 PM Dinner — 2 Multigrain Roti + Fish Curry (less oil) + Sabzi', '💧 Before Bed — Warm water + jeera powder'],
+  },
+  {
+    id: 'd3', name: 'Maintenance (2200 cal)', type: 'Maintenance', calories: '2200',
+    description: 'Current weight maintain karne ke liye balanced diet.',
+    meals: ['🌅 6:00 AM — Warm water + soaked nuts', '🍳 8:00 AM Breakfast — Poha / Upma + 4 Boiled Eggs + 1 glass Milk', '🥤 11:00 AM Snack — Fruit + Yogurt / Lassi', '🍱 1:30 PM Lunch — 2-3 Roti + Dal + Sabzi + Salad + Curd', '🍌 4:30 PM Snack — Protein Bar / Peanut Butter Bread', '🏋️ Pre-Workout — Black Coffee + Banana', '🥗 7:30 PM Post-Workout — Protein Shake or 2 Eggs', '🍛 9:00 PM Dinner — 2 Roti + Chicken / Paneer Curry + Salad', '🥛 Before Bed — 1 glass Milk'],
+  },
+  {
+    id: 'd4', name: 'Vegetarian Muscle Gain', type: 'Vegetarian', calories: '2800',
+    description: 'Pure vegetarian. Muscle gain ke liye high protein veg diet.',
+    meals: ['🌅 5:30 AM — Soaked chana (1 cup) + garam paani', '🍳 7:00 AM Breakfast — Besan Chilla 3 pcs + Paneer Bhurji + 1 glass Milk', '🥤 10:00 AM Snack — Soya Protein Shake + Banana', '🍱 1:00 PM Lunch — 2 cup Rice + Rajma / Chole + Paneer Sabzi + Salad', '🥗 4:00 PM Snack — Sprouts 1 bowl + Fruits + Nuts', '🏋️ Pre-Workout — Banana + Jaggery + Black Coffee', '🥤 Post-Workout — Whey Protein / Soya Shake + 1 Banana', '🍛 8:30 PM Dinner — 3 Roti + Dal Makhani + Tofu Sabzi', '🥛 Before Bed — 1 glass Haldi Milk + Ashwagandha'],
+  },
 ];
 
 // ============= HELPER FUNCTIONS =============

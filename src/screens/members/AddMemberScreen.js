@@ -100,55 +100,94 @@ export default function AddMemberScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
-    if (!form.rollNo.trim()) { Alert.alert('Error', 'Enter Roll Number'); return; }
+    const rollNoStr = String(form.rollNo || '').trim();
+    if (!isEditing && !rollNoStr) { Alert.alert('Error', 'Enter Roll Number'); return; }
     if (!form.name.trim()) { Alert.alert('Error', 'Enter Full Name'); return; }
-    if (!form.phone || form.phone.length < 10) { Alert.alert('Error', 'Enter valid Mobile Number'); return; }
+    if (!form.phone || String(form.phone).replace(/\D/g, '').length < 10) { Alert.alert('Error', 'Enter valid 10-digit Mobile Number'); return; }
     if (!form.joinDate) { Alert.alert('Error', 'Enter Join Date'); return; }
-    if (!form.plan) { Alert.alert('Error', 'Select a Plan'); return; }
+    if (!form.plan) { Alert.alert('Error', 'Plan select karo'); return; }
 
-    // check duplicate roll no
-    if (!isEditing) {
-      const existing = members.find(m => m.rollNo?.toString() === form.rollNo.trim());
-      if (existing) { Alert.alert('Error', `Roll Number ${form.rollNo} already exists for ${existing.name}`); return; }
+    // check duplicate roll no (only for new members)
+    if (!isEditing && rollNoStr) {
+      const existing = members.find(m => m.rollNo?.toString() === rollNoStr);
+      if (existing) { Alert.alert('Error', `Roll Number ${rollNoStr} already exists for ${existing.name}`); return; }
     }
 
     setSaving(true);
     try {
       const saveData = {
-        rollNo: parseInt(form.rollNo) || form.rollNo,
-        name: form.name,
-        phone: form.phone,
-        gender: form.gender,
-        age: form.age,
-        height: form.height,
+        name: form.name.trim(),
+        phone: String(form.phone).trim(),
+        gender: form.gender || '',
+        age: form.age || '',
+        height: form.height || '',
         dob: parseDateDMY(form.dob),
         startDate: parseDateDMY(form.joinDate),
-        endDate: getExpiryISO(),
+        endDate: getExpiryISO() || (isEditing ? editMember.endDate : ''),
         plan: form.plan,
-        planId: form.planId,
-        planAmount: form.planAmount,
-        paidAmount: form.paidAmount,
-        paymentMode: form.paymentMode,
-        admissionFee: '0',
-        discount: '0',
+        planId: form.planId || '',
+        planAmount: form.planAmount || '0',
+        paidAmount: form.paidAmount || '0',
+        paymentMode: form.paymentMode || 'Cash',
       };
+
+      // only set these for new admission
+      if (!isEditing) {
+        saveData.rollNo = parseInt(rollNoStr) || rollNoStr;
+        saveData.admissionFee = '0';
+        saveData.discount = '0';
+      }
 
       if (isEditing) {
         await updateMember(editId, saveData);
-        Alert.alert('Success', 'Member updated!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+        navigation.goBack();
+        setTimeout(() => Alert.alert('✅ Updated!', `${form.name} ki details update ho gayi!`), 350);
       } else {
-        const member = await addMember(saveData);
+        const newMember = await addMember(saveData);
+
+        // Build welcome message
+        let welcomeMsg = null;
         if (sendWelcome && form.phone) {
-          const template = messageTemplates?.welcome || 'Welcome to SG Fitness Evolution, {name}! 🏋️\nRoll No: {rollNo}\nPlan: {plan}\nLet\'s achieve your fitness goals! 💪';
-          const msg = fillTemplate(template, { name: form.name, rollNo: form.rollNo, plan: form.plan, phone: form.phone });
-          openWhatsApp(form.phone, msg);
+          const templateObj = messageTemplates?.welcome;
+          const template = (typeof templateObj === 'object' ? templateObj?.whatsapp : templateObj)
+            || `🎉 *${settings?.gymName || 'SG Fitness'} mein Swagat Hai!*\n\nNamaste *{name} Ji*, 🙏\n\nAap humare parivar ka hissa ban gaye hain! ❤️\n\n📋 *Membership Details:*\n• Roll No: {rollNo}\n• Plan: {plan}\n• Start Date: {start_date}\n• Valid Till: {expiry_date}\n\n💪 Regularly aayein aur apni fitness journey enjoy karein! 🔥\n\n📞 ${settings?.gymPhone || ''}\n— *${settings?.gymName || 'SG Fitness'} Team* 🏋️`;
+          welcomeMsg = fillTemplate(template, {
+            name: form.name,
+            rollNo: rollNoStr,
+            plan: form.plan,
+            phone: form.phone,
+            start_date: form.joinDate,
+            expiry_date: expiryDisplay || getExpiryDate(),
+            gym_name: settings?.gymName || 'SG Fitness',
+            gym_phone: settings?.gymPhone || '',
+          });
         }
-        Alert.alert('Success', `Member added! Roll #${form.rollNo}`, [{ text: 'OK', onPress: () => navigation.goBack() }]);
+
+        // Navigate back first — page band hoga turant
+        navigation.goBack();
+
+        // Phir alert show karo with WhatsApp button
+        setTimeout(() => {
+          if (welcomeMsg) {
+            Alert.alert(
+              '✅ Member Added!',
+              `${form.name} ko Roll #${rollNoStr} se add kar diya!\n\nAbhi Welcome Message bhejein?`,
+              [
+                { text: 'Baad mein', style: 'cancel' },
+                { text: '📲 WhatsApp pe Bhejo', onPress: () => openWhatsApp(form.phone, welcomeMsg) },
+              ]
+            );
+          } else {
+            Alert.alert('✅ Member Added!', `${form.name} ko Roll #${rollNoStr} se successfully add kar diya!`);
+          }
+        }, 400);
       }
     } catch (e) {
-      Alert.alert('Error', 'Failed to save');
+      console.log('Save error:', e);
+      Alert.alert('Error', `Save failed: ${e?.message || 'Please try again'}`);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const expiryDisplay = getExpiryDate();
