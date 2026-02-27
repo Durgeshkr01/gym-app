@@ -22,7 +22,7 @@ export default function MembersScreen({ navigation, route }) {
   const getFilteredMembers = () => {
     let filtered = [...members];
     // Apply status filter
-    if (selectedFilter === 'active') filtered = filtered.filter(m => getMemberStatus(m) === 'active');
+    if (selectedFilter === 'active') filtered = filtered.filter(m => getMemberStatus(m) === 'active' || getMemberStatus(m) === 'expiring');
     else if (selectedFilter === 'expired') filtered = filtered.filter(m => getMemberStatus(m) === 'expired');
     else if (selectedFilter === 'expiring') filtered = filtered.filter(m => getMemberStatus(m) === 'expiring');
     else if (selectedFilter === 'dues') filtered = filtered.filter(m => (m.dueAmount || 0) > 0);
@@ -35,7 +35,7 @@ export default function MembersScreen({ navigation, route }) {
     { id: 'all', label: `All (${members.length})` },
     { id: 'active', label: 'Active' },
     { id: 'expired', label: 'Expired' },
-    { id: 'expiring', label: 'Expiring' },
+    { id: 'expiring', label: 'Expiring Soon' },
     { id: 'dues', label: 'Dues' },
   ];
 

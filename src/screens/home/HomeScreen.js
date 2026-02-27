@@ -10,7 +10,7 @@ import InstallBanner from '../../components/web/InstallBanner';
 
 export default function HomeScreen({ navigation }) {
   const { theme } = useTheme();
-  const { getDashboardStats, notifications, generateAutoNotifications } = useData();
+  const { getDashboardStats, notifications, generateAutoNotifications, members } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({});
@@ -58,6 +58,17 @@ export default function HomeScreen({ navigation }) {
         </Card.Content>
       </Card>
 
+      {/* Alert Banner */}
+      {unreadCount > 0 && (
+        <TouchableOpacity style={styles.alertBanner} onPress={() => navigation.navigate('Notifications')}>
+          <MaterialCommunityIcons name="bell-ring" size={18} color="#fff" />
+          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13, marginLeft: 8, flex: 1 }}>
+            {unreadCount} New Alert{unreadCount > 1 ? 's' : ''} — Tap to View
+          </Text>
+          <MaterialCommunityIcons name="chevron-right" size={18} color="#fff" />
+        </TouchableOpacity>
+      )}
+
       {/* PWA Install Banner (web only) */}
       <InstallBanner />
 
@@ -76,6 +87,26 @@ export default function HomeScreen({ navigation }) {
                 <MaterialCommunityIcons name={a.icon} size={26} color={a.color} />
               </View>
               <Text style={[styles.actionLabel, { color: c.text }]}>{a.label}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+
+      {/* Members Overview */}
+      <Text style={[styles.secTitle, { color: c.primary }]}>Members Overview</Text>
+      <View style={styles.overGrid}>
+        {[
+          { l: 'Total', v: stats.totalMembers || 0, i: 'account-group', co: '#2196F3' },
+          { l: 'Active', v: (stats.activeMembers || 0) + (stats.expiringSoon || 0), i: 'check-circle', co: '#4CAF50' },
+          { l: 'Expiring\nSoon', v: stats.expiringSoon || 0, i: 'alert-circle', co: '#FF9800' },
+          { l: 'Expired', v: stats.expiredMembers || 0, i: 'close-circle', co: '#FF5252' },
+        ].map((s, i) => (
+          <View key={i} style={styles.overCardWrapper}>
+            <TouchableOpacity style={[styles.overCard, { backgroundColor: c.surface }]}
+              onPress={() => navigation.navigate('Members')}>
+              <MaterialCommunityIcons name={s.i} size={30} color={s.co} />
+              <Text style={[styles.overNum, { color: c.text }]}>{s.v}</Text>
+              <Text style={[styles.overLbl, { color: c.muted, textAlign: 'center' }]}>{s.l}</Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -105,26 +136,6 @@ export default function HomeScreen({ navigation }) {
         ))}
       </View>
 
-      {/* Members Overview */}
-      <Text style={[styles.secTitle, { color: c.primary }]}>Members Overview</Text>
-      <View style={styles.overGrid}>
-        {[
-          { l: 'Total', v: stats.totalMembers || 0, i: 'account-group', co: '#2196F3' },
-          { l: 'Active', v: stats.activeMembers || 0, i: 'check-circle', co: '#4CAF50' },
-          { l: 'Expiring', v: stats.expiringSoon || 0, i: 'alert-circle', co: '#FF9800' },
-          { l: 'Expired', v: stats.expiredMembers || 0, i: 'close-circle', co: '#FF5252' },
-        ].map((s, i) => (
-          <View key={i} style={styles.overCardWrapper}>
-            <TouchableOpacity style={[styles.overCard, { backgroundColor: c.surface }]}
-              onPress={() => navigation.navigate('Members')}>
-              <MaterialCommunityIcons name={s.i} size={30} color={s.co} />
-              <Text style={[styles.overNum, { color: c.text }]}>{s.v}</Text>
-              <Text style={[styles.overLbl, { color: c.muted }]}>{s.l}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-
       {/* Revenue */}
       <Text style={[styles.secTitle, { color: c.primary }]}>Revenue</Text>
       <View style={styles.revRow}>
@@ -147,6 +158,46 @@ export default function HomeScreen({ navigation }) {
           </Card>
         </View>
       </View>
+      <View style={styles.revRow}>
+        <View style={[styles.revCardWrapper, { flex: 1 }]}>
+          <Card style={[styles.revCard, { backgroundColor: c.surface }]}>
+            <Card.Content style={styles.revInner}>
+              <MaterialCommunityIcons name="chart-line-variant" size={28} color="#9C27B0" />
+              <Text style={[styles.revAmt, { color: '#9C27B0' }]}>{formatCurrency(stats.totalRevenue || 0)}</Text>
+              <Text style={{ fontSize: 11, color: c.muted }}>Total Collected</Text>
+            </Card.Content>
+          </Card>
+        </View>
+      </View>
+
+      {/* Gender Distribution */}
+      <Text style={[styles.secTitle, { color: c.primary }]}>Gender Distribution</Text>
+      <Card style={[styles.genderCard, { backgroundColor: c.surface }]}>
+        <Card.Content>
+          {(() => {
+            let male = 0, female = 0, other = 0;
+            members.forEach(m => {
+              if (m.gender === 'Male') male++;
+              else if (m.gender === 'Female') female++;
+              else other++;
+            });
+            const total = members.length || 1;
+            return (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 6 }}>
+                {[{ l: 'Male', v: male, co: '#2196F3', i: 'gender-male' }, { l: 'Female', v: female, co: '#E91E63', i: 'gender-female' }, { l: 'Other', v: other, co: '#9C27B0', i: 'gender-transgender' }].map(g => (
+                  <View key={g.l} style={{ alignItems: 'center', flex: 1 }}>
+                    <View style={{ width: 54, height: 54, borderRadius: 27, borderWidth: 3, borderColor: g.co, alignItems: 'center', justifyContent: 'center', backgroundColor: g.co + '18' }}>
+                      <MaterialCommunityIcons name={g.i} size={24} color={g.co} />
+                    </View>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: g.co, marginTop: 4 }}>{g.v}</Text>
+                    <Text style={{ fontSize: 11, color: c.muted }}>{g.l} ({Math.round(g.v / total * 100)}%)</Text>
+                  </View>
+                ))}
+              </View>
+            );
+          })()}
+        </Card.Content>
+      </Card>
 
       {/* Quick Links */}
       <Card style={[styles.linksCard, { backgroundColor: c.surface }]}>
@@ -208,4 +259,6 @@ const styles = StyleSheet.create({
   linksTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
   linkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 0.5, borderColor: '#E0E0E0' },
   linkText: { flex: 1, fontSize: 15, marginLeft: 12 },
+  alertBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF5252', marginHorizontal: 12, marginTop: 8, marginBottom: 4, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, elevation: 3 },
+  genderCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2, borderRadius: 12 },
 });

@@ -65,6 +65,11 @@ export default function MessageSettingsScreen({ navigation }) {
       defaultWA: 'Hi {name}, we miss you at SG Fitness 2.0! 😊\nIt\'s been a while since your last visit.\nCome back and let\'s get back on track! 💪🔥',
       defaultSMS: 'Hi {name}, we miss you at SG Fitness 2.0! Come back and continue your fitness journey!',
     },
+    { key: 'enquiry', label: 'Enquiry Thank You', icon: 'account-question', color: '#00BCD4',
+      desc: 'Auto-sent after new enquiry is added. Variables: {name}, {gym_name}, {gym_phone}',
+      defaultWA: '🙏 *Namaste {name} Ji!*\n\nAapka {gym_name} mein enquiry ke liye bahut bahut shukriya! 😊\n\nHum jald hi aapse sampark karenge.\n\n💪 Fitness journey ke liye taiyaar rahein!\n\n📞 {gym_phone}\n\n— *{gym_name} Team* 🏋️',
+      defaultSMS: 'Namaste {name} Ji! {gym_name} mein enquiry ke liye shukriya. Hum jald contact karenge. - {gym_name}',
+    },
   ];
 
   const sampleData = { name: 'John', phone: '9876543210', plan: 'Monthly', rollNo: '1',

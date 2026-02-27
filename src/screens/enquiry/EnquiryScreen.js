@@ -28,10 +28,13 @@ export default function EnquiryScreen({ navigation }) {
   const handleAdd = async () => {
     if (!form.name.trim()) { Alert.alert('Error', 'Enter name'); return; }
     if (!form.phone || form.phone.length < 10) { Alert.alert('Error', 'Enter valid phone'); return; }
-    await addEnquiry(form);
+    const enquiry = await addEnquiry(form);
+    // Auto send Thank You WhatsApp message
+    const thankYouMsg = `🙏 *Namaste ${form.name} Ji!*\n\nAapka ${form.interest} ke baare mein enquiry ke liye bahut bahut shukriya! 😊\n\nHum jald hi aapse sampark karenge.\n\nFitness journey ke liye taiyaar rahein! 💪🔥\n\n— *SG Fitness Team*`;
+    openWhatsApp(form.phone, thankYouMsg);
     setForm({ name: '', phone: '', interest: 'Gym', source: 'Walk-in', notes: '' });
     setShowAdd(false);
-    Alert.alert('Success', 'Enquiry added!');
+    Alert.alert('Success', '✅ Enquiry added! Thank You message sent on WhatsApp.');
   };
 
   const handleConvert = (enquiry) => {
@@ -42,6 +45,11 @@ export default function EnquiryScreen({ navigation }) {
         navigation.navigate('AddMember', { prefill: { name: enquiry.name, phone: enquiry.phone } });
       }},
     ]);
+  };
+
+  const handleSendVisitingCard = (enquiry) => {
+    const visitingCard = `🏋️ *SG FITNESS EVOLUTION* 🏋️\n\n💪 *Your Fitness. Our Mission.*\n\n📍 Address: [Gym Address]\n📞 Contact: [Gym Phone]\n⏰ Timings: 5:00 AM – 10:00 PM\n\n✅ *What We Offer:*\n• Modern Equipment\n• Expert Trainers\n• Diet & Nutrition Plan\n• Monthly / Quarterly / Yearly Plans\n\n🎯 *Special Offer for You!*\nVisit us today and get your *FREE Trial Session*!\n\n📲 Call or WhatsApp us now to book your slot!\n\n*Come. Train. Transform!* 🔥`;
+    openWhatsApp(enquiry.phone, visitingCard);
   };
 
   const handleFollowUp = (enquiry) => {
@@ -82,10 +90,15 @@ export default function EnquiryScreen({ navigation }) {
           <TouchableOpacity style={styles.actBtn} onPress={() => makeCall(item.phone)}>
             <MaterialCommunityIcons name="phone" size={20} color="#2196F3" />
           </TouchableOpacity>
+          <TouchableOpacity style={[styles.actBtn, { backgroundColor: '#FF6B3518', borderRadius: 6, paddingHorizontal: 6 }]}
+            onPress={() => handleSendVisitingCard(item)}>
+            <MaterialCommunityIcons name="card-account-details" size={18} color="#FF6B35" />
+            <Text style={{ fontSize: 10, color: '#FF6B35', marginLeft: 2 }}>Card</Text>
+          </TouchableOpacity>
           {item.status !== 'converted' && (
             <>
               <Button compact mode="contained" onPress={() => handleConvert(item)}
-                style={{ backgroundColor: '#4CAF50', marginLeft: 8 }} labelStyle={{ fontSize: 11 }}>Convert</Button>
+                style={{ backgroundColor: '#4CAF50', marginLeft: 6 }} labelStyle={{ fontSize: 11 }}>Convert</Button>
               <Button compact mode="outlined" onPress={() => handleFollowUp(item)}
                 style={{ marginLeft: 5 }} labelStyle={{ fontSize: 11 }}>Follow Up</Button>
             </>

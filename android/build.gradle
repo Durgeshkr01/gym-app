@@ -38,3 +38,13 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (!compileSdkVersion) compileSdkVersion = 33
+            }
+        }
+    }
+}

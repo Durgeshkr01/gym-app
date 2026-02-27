@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, ScrollView, Alert } from 'react-native';
-import { Card, Text, Searchbar, Chip, Divider, Button } from 'react-native-paper';
+import { View, StyleSheet, FlatList, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { Card, Text, Searchbar, Chip, Divider, Button, TextInput } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useData } from '../../context/DataContext';
@@ -13,6 +13,11 @@ export default function PaymentsScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [stats, setStats] = useState({});
+  const [showQuickBill, setShowQuickBill] = useState(false);
+  const [qbName, setQbName] = useState('');
+  const [qbPhone, setQbPhone] = useState('');
+  const [qbAmount, setQbAmount] = useState('');
+  const [qbService, setQbService] = useState('General Service');
   const c = theme.colors;
 
   useFocusEffect(useCallback(() => {
@@ -41,6 +46,38 @@ export default function PaymentsScreen({ navigation }) {
     // Latest payment first
     return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
+
+  const handleQuickBill = () => {
+    if (!qbName.trim()) { Alert.alert('Error', 'Enter customer name'); return; }
+    if (!qbAmount || parseFloat(qbAmount) <= 0) { Alert.alert('Error', 'Enter valid amount'); return; }
+    const billText = `🟧 *PAYMENT RECEIPT*
+*${settings?.gymName || 'SG Fitness'}*
+──────────────
+👤 Name: ${qbName}
+📱 Phone: ${qbPhone || 'N/A'}
+📋 Service: ${qbService}
+──────────────
+💰 Amount: ₹${qbAmount}
+📅 Date: ${new Date().toLocaleDateString('en-IN')}
+──────────────
+✅ Payment Received
+
+Thank you! 🙏
+— ${settings?.gymName || 'SG Fitness'}
+📞 ${settings?.gymPhone || ''}`;
+    if (qbPhone && qbPhone.length >= 10) {
+      openWhatsApp(qbPhone, billText);
+    } else {
+      Alert.alert('🧧 Bill Generated', billText, [{ text: 'OK' }]);
+    }
+    setQbName('');
+    setQbPhone('');
+    setQbAmount('');
+    setQbService('General Service');
+    setShowQuickBill(false);
+  };
+
+  const AMOUNT_PRESETS = [500, 1000, 1500, 2000, 2500, 3000];
 
   const handleDeletePayment = (item) => {
     if (!item || !item.id) {
@@ -167,6 +204,43 @@ export default function PaymentsScreen({ navigation }) {
                 );
               })}
             </ScrollView>
+            {/* Quick Bill for Non-Members */}
+            <TouchableOpacity style={styles.quickBillToggle} onPress={() => setShowQuickBill(!showQuickBill)}>
+              <MaterialCommunityIcons name="receipt" size={18} color="#fff" />
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13, marginLeft: 8, flex: 1 }}>Quick Bill — Non Member / Walk-in</Text>
+              <MaterialCommunityIcons name={showQuickBill ? 'chevron-up' : 'chevron-down'} size={18} color="#fff" />
+            </TouchableOpacity>
+
+            {showQuickBill && (
+              <Card style={[styles.quickBillCard, { backgroundColor: '#FFF9E6' }]}>
+                <Card.Content>
+                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FF6B35', marginBottom: 8 }}>🧧 Generate Quick Bill</Text>
+                  <TextInput label="Customer Name *" value={qbName} onChangeText={setQbName}
+                    mode="outlined" dense style={styles.qInp} />
+                  <TextInput label="Phone (optional)" value={qbPhone} onChangeText={setQbPhone}
+                    mode="outlined" dense keyboardType="phone-pad" maxLength={10} style={styles.qInp} />
+                  <TextInput label="Service / Description" value={qbService} onChangeText={setQbService}
+                    mode="outlined" dense style={styles.qInp} />
+                  <Text style={{ fontSize: 12, color: '#666', marginBottom: 6, marginTop: 4 }}>Select Amount:</Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+                    {AMOUNT_PRESETS.map(amt => (
+                      <TouchableOpacity key={amt} onPress={() => setQbAmount(String(amt))}
+                        style={[styles.amtChip, qbAmount === String(amt) && { backgroundColor: '#FF6B35', borderColor: '#FF6B35' }]}>
+                        <Text style={{ fontSize: 12, color: qbAmount === String(amt) ? '#fff' : '#FF6B35', fontWeight: '600' }}>₹{amt}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <TextInput label="₹ Amount *" value={qbAmount} onChangeText={setQbAmount}
+                    mode="outlined" dense keyboardType="number-pad" style={styles.qInp} />
+                  <View style={{ flexDirection: 'row', marginTop: 6, gap: 8 }}>
+                    <Button mode="contained" onPress={handleQuickBill} icon="receipt"
+                      style={{ flex: 1, backgroundColor: '#FF6B35' }} labelStyle={{ fontSize: 12 }}>Generate & Send Bill</Button>
+                    <Button mode="outlined" onPress={() => setShowQuickBill(false)}
+                      style={{ flex: 1 }} labelStyle={{ fontSize: 12 }}>Cancel</Button>
+                  </View>
+                </Card.Content>
+              </Card>
+            )}
           </>
         }
         ListEmptyComponent={
@@ -198,4 +272,8 @@ const styles = StyleSheet.create({
   payAmount: { fontSize: 18, fontWeight: 'bold' },
   deleteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F44336', paddingVertical: 8, borderRadius: 8, marginTop: 10 },
   empty: { alignItems: 'center', paddingTop: 60 },
+  quickBillToggle: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF6B35', marginHorizontal: 12, marginBottom: 8, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, elevation: 2 },
+  quickBillCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2, borderRadius: 10 },
+  qInp: { marginBottom: 8, backgroundColor: 'transparent' },
+  amtChip: { borderWidth: 1.5, borderColor: '#FF6B35', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, marginBottom: 6 },
 });

@@ -245,6 +245,16 @@ export default function AddMemberScreen({ navigation, route }) {
         <View style={styles.row}>
           <View style={styles.halfField}>
             <Text style={[styles.label, { color: c.text }]}>₹ Amount Paid (₹)</Text>
+            {plan && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 4 }}>
+                {[plan.amount || plan.price, Math.round((plan.amount || plan.price || 0) / 2), 500, 1000].filter((v, i, a) => v > 0 && a.indexOf(v) === i).map(amt => (
+                  <TouchableOpacity key={amt} onPress={() => updateField('paidAmount', String(amt))}
+                    style={{ borderWidth: 1.5, borderColor: form.paidAmount === String(amt) ? '#FF6B35' : '#ccc', borderRadius: 16, paddingHorizontal: 10, paddingVertical: 3, marginRight: 6, marginBottom: 4, backgroundColor: form.paidAmount === String(amt) ? '#FF6B35' : 'transparent' }}>
+                    <Text style={{ fontSize: 11, color: form.paidAmount === String(amt) ? '#fff' : '#666', fontWeight: '600' }}>₹{amt}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
             <TextInput value={form.paidAmount} onChangeText={v => updateField('paidAmount', v)}
               mode="outlined" keyboardType="number-pad" placeholder="Enter amount paid"
               style={styles.input} textColor={c.text} dense />
@@ -263,7 +273,7 @@ export default function AddMemberScreen({ navigation, route }) {
                     <TouchableOpacity key={m} onPress={() => { updateField('paymentMode', m); setPayModeMenuVisible(false); }}
                       style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, backgroundColor: form.paymentMode === m ? 'rgba(255,107,53,0.1)' : 'transparent', borderRadius: 8, paddingHorizontal: 12 }}>
                       <RadioButton value={m} status={form.paymentMode === m ? 'checked' : 'unchecked'} color="#FF6B35" />
-                      <MaterialCommunityIcons name={m === 'Online' ? 'web' : m === 'Cash' ? 'cash' : m === 'UPI' ? 'cellphone' : 'credit-card'} size={20} color="#666" style={{ marginLeft: 8 }} />
+                      <MaterialCommunityIcons name={m === 'Online' ? 'bank-transfer' : m === 'Cash' ? 'cash' : m === 'UPI' ? 'cellphone' : 'credit-card'} size={20} color="#666" style={{ marginLeft: 8 }} />
                       <Text style={{ fontSize: 14, marginLeft: 8 }}>{m}</Text>
                     </TouchableOpacity>
                   ))}
