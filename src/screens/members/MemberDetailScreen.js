@@ -149,7 +149,7 @@ export default function MemberDetailScreen({ navigation, route }) {
           {member.altPhone && <InfoRow icon="phone-plus" label="Alt Phone" value={member.altPhone} />}
           {member.email && <InfoRow icon="email" label="Email" value={member.email} />}
           <InfoRow icon="calendar" label="DOB" value={member.dob ? `${formatDisplayDate(member.dob)} (${calculateAge(member.dob)})` : '-'} />
-          <InfoRow icon="gender-male-female" label="Gender" value={member.gender} />
+          <InfoRow icon="gender-male-female" label="Gender" value={member.gender || '-'} color={member.gender === 'Female' ? '#E91E63' : member.gender === 'Male' ? '#2196F3' : member.gender === 'Other' ? '#9C27B0' : undefined} />
           {member.address && <InfoRow icon="home" label="Address" value={member.address} />}
         </Card.Content>
       </Card>
