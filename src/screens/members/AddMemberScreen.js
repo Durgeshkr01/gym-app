@@ -34,8 +34,8 @@ export default function AddMemberScreen({ navigation, route }) {
   const [form, setForm] = useState({
     rollNo: editMember?.rollNo?.toString() || '',
     name: editMember?.name || prefill?.name || '',
-    fatherName: editMember?.fatherName || '',
     phone: editMember?.phone || prefill?.phone || '',
+    gender: editMember?.gender || '',
     age: editMember?.age?.toString() || '',
     height: editMember?.height || '',
     dob: editMember?.dob ? formatDateDMY(editMember.dob) : '',
@@ -117,8 +117,8 @@ export default function AddMemberScreen({ navigation, route }) {
       const saveData = {
         rollNo: parseInt(form.rollNo) || form.rollNo,
         name: form.name,
-        fatherName: form.fatherName,
         phone: form.phone,
+        gender: form.gender,
         age: form.age,
         height: form.height,
         dob: parseDateDMY(form.dob),
@@ -172,18 +172,36 @@ export default function AddMemberScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Row 2: Father's Name + Mobile */}
+        {/* Row 2: Mobile Number */}
         <View style={styles.row}>
-          <View style={styles.halfField}>
-            <Text style={[styles.label, { color: c.text }]}>Father's Name</Text>
-            <TextInput value={form.fatherName} onChangeText={v => updateField('fatherName', v)}
-              mode="outlined" style={styles.input} textColor={c.text} dense />
-          </View>
-          <View style={styles.halfField}>
+          <View style={{ width: '100%' }}>
             <Text style={[styles.label, { color: c.text }]}>Mobile Number *</Text>
             <TextInput value={form.phone} onChangeText={v => updateField('phone', v)}
               mode="outlined" keyboardType="phone-pad" maxLength={10} style={styles.input} textColor={c.text} dense />
           </View>
+        </View>
+
+        {/* Gender Selection */}
+        <Text style={[styles.label, { color: c.text }]}>Gender *</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          {['Male', 'Female', 'Other'].map(g => (
+            <TouchableOpacity key={g} onPress={() => updateField('gender', g)}
+              style={[styles.genderBtn, {
+                backgroundColor: form.gender === g
+                  ? (g === 'Male' ? '#2196F3' : g === 'Female' ? '#E91E63' : '#9C27B0')
+                  : 'transparent',
+                borderColor: g === 'Male' ? '#2196F3' : g === 'Female' ? '#E91E63' : '#9C27B0',
+              }]}>
+              <MaterialCommunityIcons
+                name={g === 'Male' ? 'gender-male' : g === 'Female' ? 'gender-female' : 'gender-transgender'}
+                size={16}
+                color={form.gender === g ? '#fff' : (g === 'Male' ? '#2196F3' : g === 'Female' ? '#E91E63' : '#9C27B0')}
+              />
+              <Text style={[styles.genderLabel, {
+                color: form.gender === g ? '#fff' : (g === 'Male' ? '#2196F3' : g === 'Female' ? '#E91E63' : '#9C27B0'),
+              }]}>{g}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Row 3: Age + Height */}
@@ -365,6 +383,8 @@ const styles = StyleSheet.create({
   halfField: { width: '48%' },
   label: { fontSize: 13, fontWeight: '600', marginBottom: 4, marginTop: 8 },
   input: { marginBottom: 2, backgroundColor: 'transparent' },
+  genderBtn: { flexDirection: 'row', alignItems: 'center', borderWidth: 2, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7, marginRight: 10 },
+  genderLabel: { fontSize: 13, fontWeight: '700', marginLeft: 5 },
   durationCard: { borderRadius: 8, elevation: 1, marginBottom: 10, marginTop: 4 },
   radioRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 2 },
   expiryCard: { borderRadius: 8, elevation: 1, marginBottom: 10 },

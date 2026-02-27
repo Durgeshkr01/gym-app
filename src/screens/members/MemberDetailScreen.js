@@ -145,23 +145,12 @@ export default function MemberDetailScreen({ navigation, route }) {
         <Card.Content>
           <Text style={[styles.secTitle, { color: c.primary }]}>Personal Information</Text>
           <InfoRow icon="account" label="Name" value={member.name} />
-          <InfoRow icon="account-supervisor" label="Father" value={member.fatherName} />
           <InfoRow icon="phone" label="Phone" value={member.phone} />
           {member.altPhone && <InfoRow icon="phone-plus" label="Alt Phone" value={member.altPhone} />}
           {member.email && <InfoRow icon="email" label="Email" value={member.email} />}
           <InfoRow icon="calendar" label="DOB" value={member.dob ? `${formatDisplayDate(member.dob)} (${calculateAge(member.dob)})` : '-'} />
           <InfoRow icon="gender-male-female" label="Gender" value={member.gender} />
           {member.address && <InfoRow icon="home" label="Address" value={member.address} />}
-        </Card.Content>
-      </Card>
-
-      {/* Body Details */}
-      <Card style={[styles.card, { backgroundColor: c.surface }]}>
-        <Card.Content>
-          <Text style={[styles.secTitle, { color: c.primary }]}>Body Details</Text>
-          <InfoRow icon="human-male-height" label="Height" value={member.height ? `${member.height} cm` : '-'} />
-          <InfoRow icon="weight" label="Weight" value={member.weight ? `${member.weight} kg` : '-'} />
-          <InfoRow icon="water" label="Blood Group" value={member.bloodGroup} />
         </Card.Content>
       </Card>
 
