@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }) {
     { icon: 'cash-multiple', label: 'Collect\nFee', color: '#FF6B35', action: 'Payments' },
     { icon: 'account-search', label: 'Find\nMember', color: '#9C27B0', action: 'Members' },
     { icon: 'account-question', label: 'New\nEnquiry', color: '#00BCD4', action: 'Enquiry' },
-    { icon: 'bell', label: `Alerts\n(${unreadCount})`, color: '#F44336', action: 'Notifications' },
+    { icon: 'chart-bar', label: 'Reports', color: '#3F51B5', action: 'Reports' },
   ];
 
   return (
@@ -58,16 +58,7 @@ export default function HomeScreen({ navigation }) {
         </Card.Content>
       </Card>
 
-      {/* Alert Banner */}
-      {unreadCount > 0 && (
-        <TouchableOpacity style={styles.alertBanner} onPress={() => navigation.navigate('Notifications')}>
-          <MaterialCommunityIcons name="bell-ring" size={18} color="#fff" />
-          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13, marginLeft: 8, flex: 1 }}>
-            {unreadCount} New Alert{unreadCount > 1 ? 's' : ''} — Tap to View
-          </Text>
-          <MaterialCommunityIcons name="chevron-right" size={18} color="#fff" />
-        </TouchableOpacity>
-      )}
+
 
       {/* PWA Install Banner (web only) */}
       <InstallBanner />
@@ -259,6 +250,6 @@ const styles = StyleSheet.create({
   linksTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
   linkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 0.5, borderColor: '#E0E0E0' },
   linkText: { flex: 1, fontSize: 15, marginLeft: 12 },
-  alertBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF5252', marginHorizontal: 12, marginTop: 8, marginBottom: 4, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, elevation: 3 },
+
   genderCard: { marginHorizontal: 12, marginBottom: 10, elevation: 2, borderRadius: 12 },
 });

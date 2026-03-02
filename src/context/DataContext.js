@@ -548,6 +548,7 @@ export function DataProvider({ children }) {
         return false;
       }
       await remove(ref(db, `${P.MEMBERS}/${memberId}`));
+      setMembers(prev => prev.filter(m => m.id !== memberId));
       return true;
     } catch (e) {
       console.error('deleteMember error:', e);

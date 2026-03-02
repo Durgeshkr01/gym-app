@@ -48,8 +48,13 @@ export default function MembersScreen({ navigation, route }) {
 
   const handleDelete = (item) => {
     Alert.alert('Delete Member', `Are you sure you want to delete ${item.name}?`, [
-      { text: 'Cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteMember(item.id) },
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        const result = await deleteMember(item.id);
+        if (result === true) {
+          Alert.alert('Deleted', `${item.name} has been deleted.`);
+        }
+      }},
     ]);
   };
 
