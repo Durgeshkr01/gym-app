@@ -16,6 +16,7 @@ export default function MemberDetailScreen({ navigation, route }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [showCollect, setShowCollect] = useState(false);
   const [collectAmount, setCollectAmount] = useState('');
+  const [collectSavings, setCollectSavings] = useState('0');
   const [showRenew, setShowRenew] = useState(false);
   const [renewPlanId, setRenewPlanId] = useState('');
   const [renewAmount, setRenewAmount] = useState('');
@@ -25,6 +26,10 @@ export default function MemberDetailScreen({ navigation, route }) {
   const [showWorkoutPicker, setShowWorkoutPicker] = useState(false);
   const [showDietPicker, setShowDietPicker] = useState(false);
   const [renewEndDate, setRenewEndDate] = useState('');
+  const [renewDiscount, setRenewDiscount] = useState('0');
+  const [showSensitive, setShowSensitive] = useState(true);
+
+  const maskSensitive = (value, fallback = '••••••') => (showSensitive ? value : fallback);
 
   const sendWorkoutPlanWhatsApp = (plan) => {
     const exercises = (plan.exercises || plan.items || []);
@@ -78,14 +83,17 @@ export default function MemberDetailScreen({ navigation, route }) {
   const handleCollect = async () => {
     const amt = parseFloat(collectAmount);
     if (!amt || amt <= 0) { Alert.alert('Error', 'Enter valid amount'); return; }
-    await collectDues(member.id, amt);
+    const savings = parseFloat(collectSavings) || 0;
+    await collectDues(member.id, amt, savings);
     setShowCollect(false);
     setCollectAmount('');
-    Alert.alert('Success', `₹${amt} collected from ${member.name}`);
+    setCollectSavings('0');
+    Alert.alert('Success', `₹${amt} collected from ${member.name}\nSavings Applied: ₹${savings}`);
   };
 
   const handleRenew = async () => {
     if (!renewPlanId) { Alert.alert('Error', 'Select a plan'); return; }
+    const discount = parseFloat(renewDiscount) || 0;
     if (renewMode === 'custom') {
       if (!renewStartDate || !renewEndDate) { Alert.alert('Error', 'Start aur End date dono bharein (DD/MM/YYYY)'); return; }
       // convert DD/MM/YYYY to YYYY-MM-DD
@@ -98,18 +106,19 @@ export default function MemberDetailScreen({ navigation, route }) {
       const end = toISO(renewEndDate);
       if (new Date(end) <= new Date(start)) { Alert.alert('Error', 'End date, Start date se baad honi chahiye'); return; }
       const amt = parseFloat(renewAmount) || 0;
-      await renewMember(member.id, renewPlanId, amt, 0, start, end);
+      await renewMember(member.id, renewPlanId, amt, discount, start, end);
     } else {
       const amt = parseFloat(renewAmount) || 0;
-      await renewMember(member.id, renewPlanId, amt);
+      await renewMember(member.id, renewPlanId, amt, discount);
     }
     setShowRenew(false);
     setRenewMode('auto');
     setRenewStartDate('');
     setRenewEndDate('');
+    setRenewDiscount('0');
     const selectedPlan = plans.find(p => p.id === renewPlanId);
     const paymentSummary = { plan: selectedPlan?.name || 'Plan', amount: parseFloat(renewAmount) || 0, mode: 'Cash', date: new Date().toISOString(), status: 'paid' };
-    Alert.alert('Membership Renewed! 🎉', `${member.name}'s membership renew ho gaya!`, [
+    Alert.alert('Membership Renewed! 🎉', `${member.name}'s membership renew ho gaya!\nSavings Applied: ₹${discount}`, [
       { text: '📲 Send Bill on WhatsApp', onPress: () => {
         const bill = generateBill(member, paymentSummary, settings?.gymName, settings?.gymPhone);
         openWhatsApp(member.phone, bill);
@@ -142,7 +151,7 @@ export default function MemberDetailScreen({ navigation, route }) {
           <View style={styles.headerInfo}>
             <Text style={styles.headerName}>{member.name}</Text>
             <Text style={styles.headerSub}>Roll #{member.rollNo} • {getStatusLabel(status)}</Text>
-            <Text style={styles.headerSub}>{member.phone}</Text>
+            <Text style={styles.headerSub}>{maskSensitive(member.phone, '••••••••••')}</Text>
           </View>
           <Menu visible={menuVisible} onDismiss={() => setMenuVisible(false)}
             anchor={<IconButton icon="dots-vertical" iconColor="#fff" onPress={() => setMenuVisible(true)} />}>
@@ -172,13 +181,20 @@ export default function MemberDetailScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
+      <TouchableOpacity style={styles.privacyToggle} onPress={() => setShowSensitive(prev => !prev)}>
+        <MaterialCommunityIcons name={showSensitive ? 'eye-off-outline' : 'eye-outline'} size={18} color="#455A64" />
+        <Text style={{ marginLeft: 6, color: '#455A64', fontWeight: '600' }}>
+          {showSensitive ? 'Hide Sensitive Details' : 'Show Sensitive Details'}
+        </Text>
+      </TouchableOpacity>
+
       {/* Personal Info */}
       <Card style={[styles.card, { backgroundColor: c.surface }]}>
         <Card.Content>
           <Text style={[styles.secTitle, { color: c.primary }]}>Personal Information</Text>
           <InfoRow icon="account" label="Name" value={member.name} />
-          <InfoRow icon="phone" label="Phone" value={member.phone} />
-          {member.altPhone && <InfoRow icon="phone-plus" label="Alt Phone" value={member.altPhone} />}
+          <InfoRow icon="phone" label="Phone" value={maskSensitive(member.phone, '••••••••••')} />
+          {member.altPhone && <InfoRow icon="phone-plus" label="Alt Phone" value={maskSensitive(member.altPhone, '••••••••••')} />}
           {member.email && <InfoRow icon="email" label="Email" value={member.email} />}
           <InfoRow icon="calendar" label="DOB" value={member.dob ? `${formatDisplayDate(member.dob)} (${calculateAge(member.dob)})` : '-'} />
           <InfoRow icon="gender-male-female" label="Gender" value={member.gender || '-'} color={member.gender === 'Female' ? '#E91E63' : member.gender === 'Male' ? '#2196F3' : member.gender === 'Other' ? '#9C27B0' : undefined} />
@@ -194,10 +210,10 @@ export default function MemberDetailScreen({ navigation, route }) {
           <InfoRow icon="calendar-start" label="Start Date" value={formatDisplayDate(member.startDate)} />
           <InfoRow icon="calendar-end" label="End Date" value={formatDisplayDate(member.endDate)} color={statusColor} />
           <Divider style={{ marginVertical: 8 }} />
-          <InfoRow icon="cash" label="Total Amount" value={formatCurrencyFull(member.totalAmount)} />
-          <InfoRow icon="cash-check" label="Paid Amount" value={formatCurrencyFull(member.paidAmount)} color="#4CAF50" />
-          <InfoRow icon="cash-remove" label="Due Amount" value={formatCurrencyFull(member.dueAmount)} color={member.dueAmount > 0 ? '#FF5252' : '#4CAF50'} />
-          {member.discount > 0 && <InfoRow icon="sale" label="Discount" value={formatCurrencyFull(member.discount)} color="#FF9800" />}
+          <InfoRow icon="cash" label="Total Amount" value={showSensitive ? formatCurrencyFull(member.totalAmount) : '₹••••'} />
+          <InfoRow icon="cash-check" label="Paid Amount" value={showSensitive ? formatCurrencyFull(member.paidAmount) : '₹••••'} color="#4CAF50" />
+          <InfoRow icon="cash-remove" label="Due Amount" value={showSensitive ? formatCurrencyFull(member.dueAmount) : '₹••••'} color={member.dueAmount > 0 ? '#FF5252' : '#4CAF50'} />
+          {member.discount > 0 && <InfoRow icon="sale" label="Discount" value={showSensitive ? formatCurrencyFull(member.discount) : '₹••••'} color="#FF9800" />}
         </Card.Content>
       </Card>
 
@@ -360,9 +376,11 @@ export default function MemberDetailScreen({ navigation, route }) {
             <Text style={{ marginBottom: 8, color: '#666' }}>Pending: ₹{member.dueAmount}</Text>
             <TextInput label="Amount to Collect" value={collectAmount} onChangeText={setCollectAmount}
               mode="outlined" keyboardType="numeric" style={{ marginBottom: 10 }} />
+            <TextInput label="Custom Savings / Waiver" value={collectSavings} onChangeText={setCollectSavings}
+              mode="outlined" keyboardType="numeric" style={{ marginBottom: 10 }} />
             <View style={{ flexDirection: 'row' }}>
               <Button mode="contained" onPress={handleCollect} style={{ flex: 1, marginRight: 5, backgroundColor: '#4CAF50' }}>Collect</Button>
-              <Button mode="outlined" onPress={() => setShowCollect(false)} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
+              <Button mode="outlined" onPress={() => { setShowCollect(false); setCollectSavings('0'); }} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
             </View>
           </Card.Content>
         </Card>
@@ -428,9 +446,11 @@ export default function MemberDetailScreen({ navigation, route }) {
 
             <TextInput label="Paid Amount" value={renewAmount} onChangeText={setRenewAmount}
               mode="outlined" keyboardType="numeric" textColor="#333" style={{ marginBottom: 10 }} />
+            <TextInput label="Custom Savings / Discount" value={renewDiscount} onChangeText={setRenewDiscount}
+              mode="outlined" keyboardType="numeric" textColor="#333" style={{ marginBottom: 10 }} />
             <View style={{ flexDirection: 'row' }}>
               <Button mode="contained" onPress={handleRenew} style={{ flex: 1, marginRight: 5, backgroundColor: '#4CAF50' }}>Renew</Button>
-              <Button mode="outlined" onPress={() => { setShowRenew(false); setRenewMode('auto'); setRenewStartDate(''); setRenewEndDate(''); }} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
+              <Button mode="outlined" onPress={() => { setShowRenew(false); setRenewMode('auto'); setRenewStartDate(''); setRenewEndDate(''); setRenewDiscount('0'); }} style={{ flex: 1, marginLeft: 5 }}>Cancel</Button>
             </View>
           </Card.Content>
         </Card>
@@ -477,6 +497,7 @@ const styles = StyleSheet.create({
   quickActions: { flexDirection: 'row', paddingHorizontal: 8, marginBottom: 10 },
   qBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, marginHorizontal: 3 },
   qBtnText: { color: '#fff', fontSize: 11, fontWeight: '600', marginLeft: 4 },
+  privacyToggle: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 12, marginBottom: 10, backgroundColor: '#ECEFF1', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10 },
   card: { marginHorizontal: 12, marginBottom: 10, elevation: 2, borderRadius: 10 },
   secTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
   infoRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },

@@ -168,6 +168,14 @@ const isThisMonth = (dateStr) => {
   return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
 };
 
+const toSafeDate = (value) => {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+const ENQUIRY_FOLLOW_UP_REMINDER_HOURS = 10;
+
 // Convert "12:43 pm" → "12:43"
 const convertTo24h = (t) => {
   if (!t) return '00:00';
@@ -371,6 +379,7 @@ export function DataProvider({ children }) {
   const membersR = useRef(members);
   const attendanceR = useRef(attendance);
   const paymentsR = useRef(payments);
+  const enquiriesR = useRef(enquiries);
   const notificationsR = useRef(notifications);
   const plansR = useRef(plans);
   const settingsR = useRef(settings);
@@ -380,6 +389,7 @@ export function DataProvider({ children }) {
   useEffect(() => { membersR.current = members; }, [members]);
   useEffect(() => { attendanceR.current = attendance; }, [attendance]);
   useEffect(() => { paymentsR.current = payments; }, [payments]);
+  useEffect(() => { enquiriesR.current = enquiries; }, [enquiries]);
   useEffect(() => { notificationsR.current = notifications; }, [notifications]);
   useEffect(() => { plansR.current = plans; }, [plans]);
   useEffect(() => { settingsR.current = settings; }, [settings]);
@@ -669,24 +679,37 @@ export function DataProvider({ children }) {
     return payment;
   }, []);
 
-  const collectDues = useCallback(async (memberId, amount) => {
+  const collectDues = useCallback(async (memberId, amount, savings = 0) => {
     const member = membersR.current.find(m => m.id === memberId);
     if (!member) return;
 
     const paid = parseFloat(amount) || 0;
-    const newPaid = (member.paidAmount || 0) + paid;
-    const newDue = (member.totalAmount || 0) - newPaid;
+    const adjustedSavings = Math.max(0, parseFloat(savings) || 0);
+    const currentDue = Math.max(0, parseFloat(member.dueAmount) || 0);
+    const nextDue = Math.max(0, currentDue - paid - adjustedSavings);
+    const dueReduction = currentDue - nextDue;
+
+    const paidDelta = Math.min(paid, dueReduction);
+    const savingsApplied = Math.max(0, dueReduction - paidDelta);
+    const newPaid = (member.paidAmount || 0) + paidDelta;
+    const newDiscount = (member.discount || 0) + savingsApplied;
+    const newTotalAmount = Math.max(0, (member.totalAmount || 0) - savingsApplied);
 
     await update(ref(db, `${P.MEMBERS}/${memberId}`), {
+      totalAmount: newTotalAmount,
       paidAmount: newPaid,
-      dueAmount: Math.max(0, newDue),
+      dueAmount: nextDue,
+      discount: newDiscount,
     });
 
-    await addPayment({
-      memberId, memberName: member.name, amount: paid,
-      type: 'Dues Collection', plan: member.plan,
-      status: newDue <= 0 ? 'paid' : 'partial',
-    });
+    if (paidDelta > 0) {
+      await addPayment({
+        memberId, memberName: member.name, amount: paidDelta,
+        type: 'Dues Collection', plan: member.plan,
+        status: nextDue <= 0 ? 'paid' : 'partial',
+        notes: savingsApplied > 0 ? `Savings applied: ₹${savingsApplied}` : '',
+      });
+    }
   }, []);
 
   const deletePayment = useCallback(async (paymentId) => {
@@ -733,6 +756,8 @@ export function DataProvider({ children }) {
       status: 'new',
       createdAt: new Date().toISOString(),
       followUpDate: addDays(formatDate(new Date()), 3),
+      eWishingOccasion: enquiryData.eWishingOccasion || 'Birthday',
+      eWishingReminderAt: enquiryData.eWishingReminderAt || '',
     };
     await set(newRef, enquiry);
     return enquiry;
@@ -757,6 +782,9 @@ export function DataProvider({ children }) {
       memberId: notifData.memberId || '',
       memberName: notifData.memberName || '',
       memberPhone: notifData.memberPhone || '',
+      enquiryId: notifData.enquiryId || '',
+      enquiryName: notifData.enquiryName || '',
+      enquiryPhone: notifData.enquiryPhone || '',
       read: false,
       createdAt: new Date().toISOString(),
     });
@@ -787,6 +815,7 @@ export function DataProvider({ children }) {
   const generateAutoNotifications = useCallback(async () => {
     const today = formatDate(new Date());
     const currentMembers = membersR.current;
+    const currentEnquiries = enquiriesR.current;
     const currentNotifs = notificationsR.current;
     const currentSettings = settingsR.current;
     const newNotifs = [];
@@ -833,6 +862,52 @@ export function DataProvider({ children }) {
       }
     }
 
+    for (const enquiry of currentEnquiries) {
+      const enquiryStatus = (enquiry.status || '').toLowerCase();
+      const isResolved = enquiryStatus === 'converted' || enquiryStatus === 'lost' || enquiryStatus === 'resolved';
+      const createdAt = toSafeDate(enquiry.createdAt);
+
+      if (!isResolved && createdAt) {
+        const ageHours = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+        if (ageHours >= ENQUIRY_FOLLOW_UP_REMINDER_HOURS) {
+          const exists = currentNotifs.find(n =>
+            n.type === 'enquiry_followup' &&
+            n.enquiryId === enquiry.id &&
+            isToday(n.createdAt)
+          );
+          if (!exists) {
+            newNotifs.push({
+              type: 'enquiry_followup',
+              title: '📌 Follow-up Pending',
+              message: `${enquiry.name} enquiry pending for ${Math.floor(ageHours)}h. Please follow up.`,
+              enquiryId: enquiry.id,
+              enquiryName: enquiry.name,
+              enquiryPhone: enquiry.phone || '',
+            });
+          }
+        }
+      }
+
+      const reminderDate = toSafeDate(enquiry.eWishingReminderAt);
+      if (reminderDate && formatDate(reminderDate) === today) {
+        const exists = currentNotifs.find(n =>
+          n.type === 'ewish' &&
+          n.enquiryId === enquiry.id &&
+          isToday(n.createdAt)
+        );
+        if (!exists) {
+          newNotifs.push({
+            type: 'ewish',
+            title: '🎉 E-Wishing Card Reminder',
+            message: `Send ${enquiry.eWishingOccasion || 'special occasion'} wishes to ${enquiry.name}.`,
+            enquiryId: enquiry.id,
+            enquiryName: enquiry.name,
+            enquiryPhone: enquiry.phone || '',
+          });
+        }
+      }
+    }
+
     // Write all new notifications to Firebase
     if (newNotifs.length > 0) {
       const batchUpdates = {};
@@ -848,10 +923,10 @@ export function DataProvider({ children }) {
 
   // Generate notifications when members load
   useEffect(() => {
-    if (!loading && members.length > 0) {
+    if (!loading) {
       generateAutoNotifications();
     }
-  }, [loading, members.length]);
+  }, [loading, members.length, enquiries.length]);
 
   // ============= PLANS FUNCTIONS =============
   const savePlans = useCallback(async (newPlans) => {

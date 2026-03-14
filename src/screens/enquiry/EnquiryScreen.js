@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { openWhatsApp, makeCall, formatDisplayDate } from '../../utils/helpers';
+import DateInput from '../../components/DateInput';
 
 export default function EnquiryScreen({ navigation }) {
   const { theme } = useTheme();
@@ -12,8 +13,23 @@ export default function EnquiryScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', interest: 'Gym', source: 'Walk-in', notes: '' });
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    interest: 'Gym',
+    source: 'Walk-in',
+    notes: '',
+    eWishingOccasion: 'Birthday',
+    eWishingReminderDate: '',
+  });
   const c = theme.colors;
+
+  const toISODate = (dmy) => {
+    if (!dmy || dmy.length < 10) return '';
+    const parts = dmy.trim().split('/');
+    if (parts.length !== 3) return '';
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+  };
 
   const getFiltered = () => {
     let filtered = [...enquiries];
@@ -28,11 +44,23 @@ export default function EnquiryScreen({ navigation }) {
   const handleAdd = async () => {
     if (!form.name.trim()) { Alert.alert('Error', 'Enter name'); return; }
     if (!form.phone || form.phone.length < 10) { Alert.alert('Error', 'Enter valid phone'); return; }
-    const enquiry = await addEnquiry(form);
+    const reminderIso = toISODate(form.eWishingReminderDate);
+    const enquiry = await addEnquiry({
+      ...form,
+      eWishingReminderAt: reminderIso ? `${reminderIso}T09:00:00.000Z` : '',
+    });
     // Auto send Thank You WhatsApp message
     const thankYouMsg = `🙏 *Namaste ${form.name} Ji!*\n\nAapka ${form.interest} ke baare mein enquiry ke liye bahut bahut shukriya! 😊\n\nHum jald hi aapse sampark karenge.\n\nFitness journey ke liye taiyaar rahein! 💪🔥\n\n— *SG Fitness Team*`;
     openWhatsApp(form.phone, thankYouMsg);
-    setForm({ name: '', phone: '', interest: 'Gym', source: 'Walk-in', notes: '' });
+    setForm({
+      name: '',
+      phone: '',
+      interest: 'Gym',
+      source: 'Walk-in',
+      notes: '',
+      eWishingOccasion: 'Birthday',
+      eWishingReminderDate: '',
+    });
     setShowAdd(false);
     Alert.alert('Success', '✅ Enquiry added! Thank You message sent on WhatsApp.');
   };
@@ -55,6 +83,12 @@ export default function EnquiryScreen({ navigation }) {
   const handleFollowUp = (enquiry) => {
     updateEnquiry(enquiry.id, { status: 'followup' });
     openWhatsApp(enquiry.phone, `Hi ${enquiry.name}, this is SG Fitness Evolution. We'd love to have you join our gym! Any questions?`);
+  };
+
+  const handleSendEWishCard = (enquiry) => {
+    const occasion = enquiry.eWishingOccasion || 'special occasion';
+    const msg = `🎉 *${occasion} Wishes from SG Fitness Evolution* 🎉\n\nNamaste *${enquiry.name} Ji*,\n\nSG Fitness parivar ki taraf se aapko ${occasion} ki hardik shubhkamnayein! 💐\n\nAap hamesha healthy, active aur khush rahein.\n\nWarm wishes,\n*SG Fitness Evolution Team* 🏋️`;
+    openWhatsApp(enquiry.phone, msg);
   };
 
   const handleDelete = (enquiry) => {
@@ -83,6 +117,11 @@ export default function EnquiryScreen({ navigation }) {
             textStyle={{ fontSize: 10, color: statusColors[item.status] || '#999' }}>{statusLabels[item.status] || item.status}</Chip>
         </View>
         {item.notes ? <Text style={{ fontSize: 12, color: c.muted, marginTop: 6, fontStyle: 'italic' }}>"{item.notes}"</Text> : null}
+        {item.eWishingReminderAt ? (
+          <Text style={{ fontSize: 11, color: '#FF6B35', marginTop: 4 }}>
+            🎉 E-Wish Reminder: {formatDisplayDate(item.eWishingReminderAt)} ({item.eWishingOccasion || 'Occasion'})
+          </Text>
+        ) : null}
         <View style={styles.actions}>
           <TouchableOpacity style={styles.actBtn} onPress={() => openWhatsApp(item.phone)}>
             <MaterialCommunityIcons name="whatsapp" size={20} color="#25D366" />
@@ -94,6 +133,11 @@ export default function EnquiryScreen({ navigation }) {
             onPress={() => handleSendVisitingCard(item)}>
             <MaterialCommunityIcons name="card-account-details" size={18} color="#FF6B35" />
             <Text style={{ fontSize: 10, color: '#FF6B35', marginLeft: 2 }}>Card</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.actBtn, { backgroundColor: '#8BC34A1C', borderRadius: 6, paddingHorizontal: 6 }]}
+            onPress={() => handleSendEWishCard(item)}>
+            <MaterialCommunityIcons name="gift-outline" size={18} color="#689F38" />
+            <Text style={{ fontSize: 10, color: '#689F38', marginLeft: 2 }}>E-Wish</Text>
           </TouchableOpacity>
           {item.status !== 'converted' && (
             <>
@@ -137,6 +181,11 @@ export default function EnquiryScreen({ navigation }) {
               mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Source" value={form.source} onChangeText={v => setForm(p => ({ ...p, source: v }))}
               mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
+            <TextInput label="E-Wish Occasion" value={form.eWishingOccasion} onChangeText={v => setForm(p => ({ ...p, eWishingOccasion: v }))}
+              mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
+            <DateInput label="E-Wish Reminder Date (optional)" value={form.eWishingReminderDate}
+              onChangeText={v => setForm(p => ({ ...p, eWishingReminderDate: v }))}
+              style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <TextInput label="Notes" value={form.notes} onChangeText={v => setForm(p => ({ ...p, notes: v }))}
               mode="outlined" textColor="#333" style={[styles.inp, { backgroundColor: '#fff' }]} dense />
             <View style={{ flexDirection: 'row', marginTop: 5 }}>

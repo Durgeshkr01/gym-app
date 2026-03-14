@@ -9,9 +9,9 @@ import { openWhatsApp, makeCall, sendSMS, formatDisplayDate, fillTemplate } from
 
 export default function NotificationsScreen({ navigation }) {
   const { theme } = useTheme();
-  const { notifications, members, messageTemplates, settings,
+  const { notifications, members, enquiries, messageTemplates, settings,
     generateAutoNotifications, markNotifRead, markAllRead,
-    clearAllNotifications, deleteNotification, collectDues } = useData();
+    clearAllNotifications, deleteNotification, collectDues, updateEnquiry } = useData();
   const c = theme.colors;
   const [filter, setFilter] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
@@ -41,6 +41,8 @@ export default function NotificationsScreen({ navigation }) {
     dues:     { icon: 'cash-remove', color: '#F44336', label: 'Dues', bg: '#FFEBEE' },
     welcome:  { icon: 'hand-wave', color: '#4CAF50', label: 'Welcome', bg: '#E8F5E9' },
     renewal:  { icon: 'refresh', color: '#2196F3', label: 'Renewal', bg: '#E3F2FD' },
+    ewish:    { icon: 'gift-outline', color: '#8E24AA', label: 'E-Wish', bg: '#F3E5F5' },
+    enquiry_followup: { icon: 'account-clock-outline', color: '#EF6C00', label: 'Enquiry', bg: '#FFF3E0' },
     general:  { icon: 'bell', color: '#9C27B0', label: 'General', bg: '#F3E5F5' },
     checkin:  { icon: 'login', color: '#009688', label: 'Check-in', bg: '#E0F2F1' },
     inactive: { icon: 'account-off', color: '#795548', label: 'Inactive', bg: '#EFEBE9' },
@@ -78,26 +80,74 @@ export default function NotificationsScreen({ navigation }) {
   // Send WhatsApp for any notification
   const handleWhatsApp = (notif) => {
     const member = members.find(m => m.id === notif.memberId);
-    if (!member?.phone) { Alert.alert('Error', 'Member phone not available'); return; }
-    const msg = getWhatsAppMsg(notif.type, member);
-    openWhatsApp(member.phone, msg);
+    if (member?.phone) {
+      const msg = getWhatsAppMsg(notif.type, member);
+      openWhatsApp(member.phone, msg);
+      markNotifRead(notif.id);
+      return;
+    }
+
+    const enquiry = enquiries.find(e => e.id === notif.enquiryId);
+    const phone = enquiry?.phone || notif.enquiryPhone;
+    const name = enquiry?.name || notif.enquiryName || 'Member';
+    if (!phone) { Alert.alert('Error', 'Phone not available'); return; }
+
+    const msg = notif.type === 'ewish'
+      ? `🎉 Namaste ${name} Ji! SG Fitness ki taraf se aapko hardik shubhkamnayein. Healthy aur happy rahein! 💪`
+      : `Namaste ${name} Ji, SG Fitness se follow-up kar rahe hain. Kya aapko membership ya plans ke baare mein koi help chahiye?`;
+    openWhatsApp(phone, msg);
     markNotifRead(notif.id);
   };
 
   // Send SMS for any notification
   const handleSMS = (notif) => {
     const member = members.find(m => m.id === notif.memberId);
-    if (!member?.phone) { Alert.alert('Error', 'Member phone not available'); return; }
-    const msg = getSmsMsg(notif.type, member);
-    sendSMS(member.phone, msg);
+    if (member?.phone) {
+      const msg = getSmsMsg(notif.type, member);
+      sendSMS(member.phone, msg);
+      markNotifRead(notif.id);
+      return;
+    }
+
+    const enquiry = enquiries.find(e => e.id === notif.enquiryId);
+    const phone = enquiry?.phone || notif.enquiryPhone;
+    const name = enquiry?.name || notif.enquiryName || 'Member';
+    if (!phone) { Alert.alert('Error', 'Phone not available'); return; }
+
+    const msg = notif.type === 'ewish'
+      ? `Namaste ${name} Ji, SG Fitness ki taraf se hardik shubhkamnayein!`
+      : `Namaste ${name} Ji, SG Fitness se follow-up reminder. Plans ke liye reply karein ya call karein.`;
+    sendSMS(phone, msg);
     markNotifRead(notif.id);
   };
 
   // Main action handler with WhatsApp + SMS options for all types
   const handleAction = (notif) => {
     const member = members.find(m => m.id === notif.memberId);
+    const enquiry = enquiries.find(e => e.id === notif.enquiryId);
     if (!member) {
-      markNotifRead(notif.id);
+      const enquiryName = enquiry?.name || notif.enquiryName || 'Enquiry';
+      const enquiryPhone = enquiry?.phone || notif.enquiryPhone;
+      const buttons = [{ text: 'Cancel', style: 'cancel' }];
+
+      if (enquiryPhone) {
+        buttons.push({ text: '📱 WhatsApp', onPress: () => handleWhatsApp(notif) });
+        buttons.push({ text: '💬 SMS', onPress: () => handleSMS(notif) });
+        buttons.push({ text: '📞 Call', onPress: () => { makeCall(enquiryPhone); markNotifRead(notif.id); } });
+      }
+
+      if (enquiry && enquiry.status !== 'converted' && enquiry.status !== 'lost') {
+        buttons.push({
+          text: '✅ Mark Follow-Up',
+          onPress: async () => {
+            await updateEnquiry(enquiry.id, { status: 'followup' });
+            markNotifRead(notif.id);
+          },
+        });
+      }
+
+      buttons.push({ text: 'Open Enquiry Screen', onPress: () => { markNotifRead(notif.id); navigation.navigate('Enquiry'); } });
+      Alert.alert(`Enquiry Reminder - ${enquiryName}`, notif.message || '', buttons);
       return;
     }
 
@@ -168,6 +218,8 @@ export default function NotificationsScreen({ navigation }) {
     if (type === 'renewal') return 'View';
     if (type === 'checkin') return 'View';
     if (type === 'inactive') return 'Reach Out';
+    if (type === 'ewish') return 'Wish Now';
+    if (type === 'enquiry_followup') return 'Follow Up';
     return 'Action';
   };
 
@@ -202,12 +254,12 @@ export default function NotificationsScreen({ navigation }) {
             </View>
 
             {/* Action buttons row - WhatsApp + SMS + Call + Type Action for EVERY notification */}
-            {member && (
+            {(member || item.enquiryId || item.enquiryPhone) && (
               <View style={styles.actionRow}>
                 <Button compact mode="contained" onPress={() => handleAction(item)}
                   style={{ backgroundColor: cfg.color, flex: 1 }}
                   labelStyle={{ fontSize: 11, color: '#fff' }}>{getActionLabel(item.type)}</Button>
-                {member.phone ? (
+                {(member?.phone || item.enquiryPhone) ? (
                   <>
                     <TouchableOpacity style={[styles.smallBtn, { borderColor: '#25D366' }]}
                       onPress={() => handleWhatsApp(item)}>
@@ -237,6 +289,8 @@ export default function NotificationsScreen({ navigation }) {
     { id: 'birthday', label: '🎂 Birthday' },
     { id: 'expiry', label: '⏰ Expiry' },
     { id: 'dues', label: '💰 Dues' },
+    { id: 'ewish', label: '🎉 E-Wish' },
+    { id: 'enquiry_followup', label: '📌 Follow-up' },
     { id: 'welcome', label: '👋 Welcome' },
     { id: 'renewal', label: '🔄 Renewal' },
     { id: 'inactive', label: '😴 Inactive' },

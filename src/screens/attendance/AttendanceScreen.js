@@ -9,7 +9,7 @@ import { searchMembers, formatTime } from '../../utils/helpers';
 
 export default function AttendanceScreen({ navigation }) {
   const { theme } = useTheme();
-  const { members, checkIn, checkOut, getTodayAttendance, attendance, getMemberStatus } = useData();
+  const { members, checkIn, getTodayAttendance, attendance, getMemberStatus } = useData();
   const [activeTab, setActiveTab] = useState('checkin');
   const [searchQuery, setSearchQuery] = useState('');
   const [todayStats, setTodayStats] = useState({ todayCheckIns: 0, todayCheckOuts: 0, currentlyInGym: 0, currentlyInMembers: [], history: [] });
@@ -30,14 +30,6 @@ export default function AttendanceScreen({ navigation }) {
     }
   };
 
-  const handleCheckOut = async (member) => {
-    const success = await checkOut(member.id);
-    if (success) {
-      Alert.alert('Checked Out 🏠', `${member.name} checked out at ${formatTime(new Date().toISOString())}`);
-      setTodayStats(getTodayAttendance());
-    }
-  };
-
   const renderMemberItem = ({ item }) => {
     const isInGym = todayStats.currentlyInMembers.some(m => m?.id === item.id);
     return (
@@ -50,15 +42,9 @@ export default function AttendanceScreen({ navigation }) {
             <Text style={[styles.memberName, { color: c.text }]}>{item.name}</Text>
             <Text style={{ fontSize: 12, color: c.muted }}>Roll #{item.rollNo} • {item.phone}</Text>
           </View>
-          {activeTab === 'checkin' ? (
-            <Button mode="contained" compact onPress={() => handleCheckIn(item)}
-              style={{ backgroundColor: '#4CAF50' }} labelStyle={{ fontSize: 12 }}
-              icon="login" disabled={isInGym}>{isInGym ? 'In Gym' : 'Check In'}</Button>
-          ) : (
-            <Button mode="contained" compact onPress={() => handleCheckOut(item)}
-              style={{ backgroundColor: '#FF5252' }} labelStyle={{ fontSize: 12 }}
-              icon="logout" disabled={!isInGym}>{isInGym ? 'Check Out' : 'Not In'}</Button>
-          )}
+          <Button mode="contained" compact onPress={() => handleCheckIn(item)}
+            style={{ backgroundColor: '#4CAF50' }} labelStyle={{ fontSize: 12 }}
+            icon="login" disabled={isInGym}>{isInGym ? 'In Gym' : 'Check In'}</Button>
         </Card.Content>
       </Card>
     );
@@ -93,7 +79,7 @@ export default function AttendanceScreen({ navigation }) {
         {[
           { l: 'Check-Ins', v: todayStats.todayCheckIns, co: '#4CAF50', i: 'login' },
           { l: 'In Gym', v: todayStats.currentlyInGym, co: '#2196F3', i: 'account-group' },
-          { l: 'Check-Outs', v: todayStats.todayCheckOuts, co: '#FF5252', i: 'logout' },
+          { l: 'Today Visits', v: todayStats.history.length, co: '#FF9800', i: 'history' },
         ].map((s, i) => (
           <Card key={i} style={[styles.statCard, { backgroundColor: c.surface }]}>
             <Card.Content style={styles.statContent}>
@@ -109,7 +95,6 @@ export default function AttendanceScreen({ navigation }) {
       <SegmentedButtons value={activeTab} onValueChange={setActiveTab} style={styles.tabs}
         buttons={[
           { value: 'checkin', label: 'Check In', icon: 'login' },
-          { value: 'checkout', label: 'Check Out', icon: 'logout' },
           { value: 'history', label: 'History', icon: 'history' },
         ]} />
 
